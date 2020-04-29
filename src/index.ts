@@ -1,1 +1,2 @@
-export { confirm } from "./confirm";
+export { confirm } from "./functions/confirm";
+export { voteTotal } from "./functions/voteTotal";
