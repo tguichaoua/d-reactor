@@ -1,4 +1,4 @@
-import { Message, User, EmojiResolvable, MessageReaction, ReactionCollector } from "discord.js";
+import { Message, User, EmojiResolvable, MessageReaction, ReactionCollector, UserResolvable, GuildMember } from "discord.js";
 
 /** @internal */
 interface ReactorOptionsFull {
@@ -29,17 +29,23 @@ const defaultOptions: ReactorOptionsFull = {
  */
 export async function reactor<T>(
     message: Message,
-    users: User[],
+    users: UserResolvable[],
     emojis: EmojiResolvable[],
     onEnd: (collector: ReactionCollector) => T,
     onCollect?: (params: OnCollectParams<T>) => void,
     options?: ReactorOptions
 ) {
+    const userIDs = users.map(u => {
+        if (u instanceof User) return u.id;
+        if (u instanceof Message) return u.author.id;
+        if (u instanceof GuildMember) return u.user.id;
+        return u;
+    });
     const opts = Object.assign({}, defaultOptions, options);
     let stop = false;
 
     const collector = message.createReactionCollector(
-        (reaction: MessageReaction, user: User) => (users.length === 0 || users.some(u => user.id === u.id)) && emojis.includes(reaction.emoji.name),
+        (reaction: MessageReaction, user: User) => (userIDs.length === 0 || userIDs.includes(user.id)) && emojis.includes(reaction.emoji.name),
         {
             time: opts.time
         }

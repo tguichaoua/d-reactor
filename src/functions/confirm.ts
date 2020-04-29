@@ -1,8 +1,8 @@
-import { Message, User, MessageReaction } from "discord.js";
+import { Message, User, MessageReaction, UserResolvable } from "discord.js";
 import emoji from "../emoji";
 import { ReactorOptions, reactor } from "../internal/reactor";
 
-export async function confirm(message: Message, user: User, options?: ReactorOptions) {
+export async function confirm(message: Message, user: UserResolvable, options?: ReactorOptions) {
     return reactor(
         message,
         [user],

@@ -1,11 +1,18 @@
-import { TextBasedChannelFields, User } from "discord.js";
+import { TextBasedChannelFields, User, UserResolvable } from "discord.js";
 import { reactorList, ReactorListOptions } from "../internal/reactorList";
 
-
+/**
+ * 
+ * @param channel 
+ * @param prompt 
+ * @param users 
+ * @param list 
+ * @param options 
+ */
 export function voteTotal<T>(
     channel: TextBasedChannelFields,
     prompt: string,
-    users: User[],
+    users: UserResolvable[],
     list: readonly T[],
     options?: ReactorListOptions
 ) {
