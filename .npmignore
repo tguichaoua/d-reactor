@@ -1,0 +1,7 @@
+.*
+.github/
+docs/
+src/
+README.md
+tsconfig.json
+typedoc.json

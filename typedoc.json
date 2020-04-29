@@ -1,0 +1,11 @@
+{
+    "disableOutputCheck": true,
+    "excludeExternals": true,
+    "excludeNotExported": true,
+    "excludePrivate": true,
+    "stripInternal": true,
+    "out": "./docs/",
+    "readme": "none",
+    "mode": "file",
+    "exclude": []
+}
