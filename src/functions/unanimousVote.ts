@@ -1,4 +1,4 @@
-import { TextBasedChannelFields, User, UserResolvable } from "discord.js";
+import { TextBasedChannelFields, UserResolvable } from "discord.js";
 import { reactorList, ReactorListOptions } from "../internal/reactorList";
 
 /**
@@ -6,10 +6,10 @@ import { reactorList, ReactorListOptions } from "../internal/reactorList";
  * The resolved value is the element that all users choose.
  * The resolved value is null if it can't be determined (eg timeout, users or list is empty).
  * @param channel - The channel where to post the vote message.
- * @param caption - 
- * @param users 
- * @param list 
- * @param options 
+ * @param caption - Message caption
+ * @param users - A list of user that can vote
+ * @param list - A list of element
+ * @param options
  */
 export function unanimousVote<T>(
     channel: TextBasedChannelFields,
