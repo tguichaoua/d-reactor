@@ -16,7 +16,7 @@ export function voteTotal<T>(
     prompt: string,
     users: readonly UserResolvable[],
     list: readonly T[],
-    options?: ReactorListOptions
+    options?: ReactorListOptions<T>
 ) {
     if (users.length === 0) return Promise.resolve(null);
     return reactorList<T>(
