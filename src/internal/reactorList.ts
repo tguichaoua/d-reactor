@@ -7,7 +7,7 @@ export type ReactorListOptions<T> = ReactorOptions & { stringify?: (o: T) => str
 
 export async function reactorList<T>(
     channel: TextBasedChannelFields,
-    prompt: string,
+    caption: string,
     users: readonly UserResolvable[],
     list: readonly T[],
     onEnd: (collector: ReactionCollector) => T | null,
@@ -15,7 +15,7 @@ export async function reactorList<T>(
     options?: ReactorListOptions<T>
 ) {
     if (list.length === 0) return null;
-    const message = await sendListMessage(channel, prompt, list, options?.stringify);
+    const message = await sendListMessage(channel, caption, list, options?.stringify);
     const emojis = indexed_emojis.slice(0, list.length);
 
     return reactor<T | null>(
