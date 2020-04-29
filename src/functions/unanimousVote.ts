@@ -1,4 +1,4 @@
-import { TextBasedChannelFields, UserResolvable } from "discord.js";
+import { TextBasedChannelFields, UserResolvable, User } from "discord.js";
 import { reactorList, ReactorListOptions } from "../internal/reactorList";
 
 /**
@@ -14,7 +14,7 @@ import { reactorList, ReactorListOptions } from "../internal/reactorList";
 export function unanimousVote<T>(
     channel: TextBasedChannelFields,
     caption: string,
-    users: readonly UserResolvable[],
+    users: readonly User[],
     list: readonly T[],
     options?: ReactorListOptions<T>
 ) {
@@ -22,13 +22,13 @@ export function unanimousVote<T>(
     return reactorList<T>(
         channel,
         caption,
-        users,
         list,
         () => null,
-        ({ reaction, resolve, index, userIDs }) => {
-            if (userIDs.every(id => reaction.users.cache.has(id)))
+        ({ reaction, resolve, index }) => {
+            if (users.every(u => reaction.users.cache.has(u.id)))
                 resolve(list[index]);
         },
+        user => users.some(u => u.id === user.id),
         options
     )
 }
