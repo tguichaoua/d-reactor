@@ -2,7 +2,7 @@ import { Message, User, MessageReaction } from "discord.js";
 import emoji from "./emoji";
 
 interface ConfirmOptions {
-    timeout?: number,
+    time?: number,
     deleteMessage: boolean,
 }
 
@@ -22,7 +22,7 @@ export async function confirm(message: Message, user: User, options?: Partial<Co
     const collector = message.createReactionCollector(
         (r: MessageReaction, u: User) => u.id === user.id && emojis.includes(r.emoji.name),
         {
-            time: opts.timeout
+            time: opts.time
         }
     )
 
@@ -42,7 +42,7 @@ export async function confirm(message: Message, user: User, options?: Partial<Co
 
     for (const e of emojis) {
         if (stop) return promise;
-        await message.react(e);
+        await message.react(e).catch(() => { });
     }
 
     return promise;
