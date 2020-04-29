@@ -29,8 +29,8 @@ const defaultOptions: ReactorOptionsFull = {
  */
 export async function reactor<T>(
     message: Message,
-    users: UserResolvable[],
-    emojis: EmojiResolvable[],
+    users: readonly UserResolvable[],
+    emojis: readonly EmojiResolvable[],
     onEnd: (collector: ReactionCollector) => T,
     onCollect?: (params: OnCollectParams<T>) => void,
     options?: ReactorOptions

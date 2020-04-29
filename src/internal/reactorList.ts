@@ -8,7 +8,7 @@ export type ReactorListOptions = ReactorOptions & { toString?: (o: T) => string 
 export async function reactorList<T>(
     channel: TextBasedChannelFields,
     prompt: string,
-    users: UserResolvable[],
+    users: readonly UserResolvable[],
     list: readonly T[],
     onEnd: (collector: ReactionCollector) => T | null,
     onCollect?: (params: OnCollectParams<T | null> & { readonly index: number }) => void,

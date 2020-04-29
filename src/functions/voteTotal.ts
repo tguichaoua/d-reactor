@@ -2,7 +2,9 @@ import { TextBasedChannelFields, User, UserResolvable } from "discord.js";
 import { reactorList, ReactorListOptions } from "../internal/reactorList";
 
 /**
- * 
+ * The returned promise is resolve when all user in users vote for the same element.
+ * The resolved value is the element that all users choose.
+ * The resolved value is null if it can't be determined (eg timeout, users or list is empty).
  * @param channel 
  * @param prompt 
  * @param users 
@@ -12,7 +14,7 @@ import { reactorList, ReactorListOptions } from "../internal/reactorList";
 export function voteTotal<T>(
     channel: TextBasedChannelFields,
     prompt: string,
-    users: UserResolvable[],
+    users: readonly UserResolvable[],
     list: readonly T[],
     options?: ReactorListOptions
 ) {
