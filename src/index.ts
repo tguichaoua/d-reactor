@@ -1,2 +1,2 @@
 export { confirm } from "./functions/confirm";
-export { voteTotal } from "./functions/voteTotal";
+export { unanimousVote as voteTotal } from "./functions/voteTotal";

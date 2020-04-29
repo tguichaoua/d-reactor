@@ -11,7 +11,7 @@ import { reactorList, ReactorListOptions } from "../internal/reactorList";
  * @param list 
  * @param options 
  */
-export function voteTotal<T>(
+export function unanimousVote<T>(
     channel: TextBasedChannelFields,
     prompt: string,
     users: readonly UserResolvable[],
