@@ -1,7 +1,7 @@
 {
-    "name": "untitled",
+    "name": "discord-reactor",
     "version": "0.0.0",
-    "description": "",
+    "description": "Plenty of functions to make reaction-base menu with discord.js",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
@@ -15,20 +15,27 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/baanloh/npm-typescript-template.git"
+        "url": "git+https://github.com/baanloh/discord-reactor.git"
     },
-    "keywords": [],
+    "keywords": [
+        "discord.js",
+        "discord",
+        "reaction",
+        "menu"
+    ],
     "author": "Tristan Guichaoua",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/baanloh/npm-typescript-template/issues"
+        "url": "https://github.com/baanloh/discord-reactor/issues"
     },
-    "homepage": "https://github.com/baanloh/npm-typescript-template#readme",
+    "homepage": "https://github.com/baanloh/discord-reactor#readme",
     "devDependencies": {
         "typedoc": "^0.17.6",
         "typescript": "^3.8.3"
     },
     "dependencies": {
-        "@types/node": "^13.13.4"
+        "@types/node": "^13.13.4",
+        "@types/ws": "^7.2.4",
+        "discord.js": "^12.2.0"
     }
 }
