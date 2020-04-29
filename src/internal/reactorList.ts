@@ -3,7 +3,7 @@ import { ReactorOptions, reactor, OnCollectParams } from "./reactor";
 import { sendListMessage } from "./sendListMessage";
 import indexed_emojis from "../indexed-emojis";
 
-export type ReactorListOptions = ReactorOptions & { toString?: (o: T) => string };
+export type ReactorListOptions<T> = ReactorOptions & { toString?: (o: T) => string };
 
 export async function reactorList<T>(
     channel: TextBasedChannelFields,
@@ -12,7 +12,7 @@ export async function reactorList<T>(
     list: readonly T[],
     onEnd: (collector: ReactionCollector) => T | null,
     onCollect?: (params: OnCollectParams<T | null> & { readonly index: number }) => void,
-    options?: ReactorListOptions
+    options?: ReactorListOptions<T>
 ) {
     if (list.length === 0) return null;
     const message = await sendListMessage(channel, prompt, list, options?.toString);
