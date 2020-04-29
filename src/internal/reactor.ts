@@ -35,12 +35,8 @@ export async function reactor<T>(
     onCollect?: (params: OnCollectParams<T>) => void,
     options?: ReactorOptions
 ) {
-    const userIDs = users.map(u => {
-        if (u instanceof User) return u.id;
-        if (u instanceof Message) return u.author.id;
-        if (u instanceof GuildMember) return u.user.id;
-        return u;
-    });
+    console.log(onCollect);
+    const userIDs = users.map(u => message.client.users.resolveID(u)).filter(u => u !== null) as string[];
     const opts = Object.assign({}, defaultOptions, options);
     let stop = false;
 

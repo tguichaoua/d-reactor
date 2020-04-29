@@ -26,6 +26,8 @@ export function voteTotal<T>(
         list,
         () => null,
         ({ reaction, resolve, index }) => {
+            console.log(reaction);
+
             if ((reaction.count ?? 0) >= users.length)
                 resolve(list[index]);
         },
