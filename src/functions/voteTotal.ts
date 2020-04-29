@@ -25,10 +25,8 @@ export function voteTotal<T>(
         users,
         list,
         () => null,
-        ({ reaction, resolve, index }) => {
-            console.log(reaction);
-
-            if ((reaction.count ?? 0) >= users.length)
+        ({ reaction, resolve, index, userIDs }) => {
+            if (userIDs.every(id => reaction.users.cache.has(id)))
                 resolve(list[index]);
         },
         options

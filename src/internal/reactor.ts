@@ -11,6 +11,7 @@ export interface OnCollectParams<T> {
     readonly collector: ReactionCollector;
     readonly reaction: MessageReaction;
     readonly user: User;
+    readonly userIDs: string[];
     readonly resolve: (value?: T | PromiseLike<T>) => void;
     readonly reject: (reason?: any) => void;
 }
@@ -35,7 +36,6 @@ export async function reactor<T>(
     onCollect?: (params: OnCollectParams<T>) => void,
     options?: ReactorOptions
 ) {
-    console.log(onCollect);
     const userIDs = users.map(u => message.client.users.resolveID(u)).filter(u => u !== null) as string[];
     const opts = Object.assign({}, defaultOptions, options);
     let stop = false;
@@ -49,7 +49,7 @@ export async function reactor<T>(
 
     const promise = new Promise<T>((resolve, reject) => {
         if (onCollect)
-            collector.on("collect", (reaction, user) => onCollect({ collector, reaction, user, resolve, reject }));
+            collector.on("collect", (reaction, user) => onCollect({ collector, reaction, user, userIDs, resolve, reject }));
         collector.once("end", () => {
             if (!stop)
                 resolve(onEnd(collector))
