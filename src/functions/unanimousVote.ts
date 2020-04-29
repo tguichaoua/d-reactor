@@ -1,4 +1,4 @@
-import { TextBasedChannelFields, UserResolvable, User } from "discord.js";
+import { TextBasedChannelFields, User } from "discord.js";
 import { reactorList, ReactorListOptions } from "../internal/reactorList";
 
 /**
