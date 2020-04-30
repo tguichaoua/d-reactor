@@ -1,5 +1,5 @@
 import { Message, User, EmojiResolvable, MessageReaction, ReactionCollector } from "discord.js";
-import { ReactorCancellationToken } from "../ReactorCancellationToken";
+import { ReactorCancellationToken } from "../models/ReactorCancellationToken";
 
 interface ReactorOptionsFull {
     time?: number,
