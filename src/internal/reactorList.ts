@@ -3,8 +3,12 @@ import { ReactorOptions, reactor, OnCollectParams, UserFilter } from "./reactor"
 import { sendListMessage } from "./sendListMessage";
 import indexed_emojis from "../indexed-emojis";
 
-export type ReactorListOptions<T> = ReactorOptions & { stringify?: (o: T) => string };
+export type ReactorListOptions<T> = ReactorOptions & {
+    /** This function is called for each element in the list to convert them into a string in the message. (default is o => `${o}`) */
+    stringify?: (o: T) => string
+};
 
+/** @internal */
 export async function reactorList<T>(
     channel: TextBasedChannelFields,
     caption: string,
@@ -22,7 +26,7 @@ export async function reactorList<T>(
         message,
         emojis,
         onEnd,
-        onCollect ? (params) => onCollect(Object.assign(params, {index: emojis.indexOf(params.reaction.emoji.name)})) : undefined,
+        onCollect ? (params) => onCollect(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) })) : undefined,
         userFilter,
         options
     );
