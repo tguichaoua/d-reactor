@@ -1,13 +1,16 @@
-import { Message, User, EmojiResolvable, MessageReaction, ReactionCollector} from "discord.js";
+import { Message, User, EmojiResolvable, MessageReaction, ReactionCollector } from "discord.js";
+import { ReactorCancellationToken } from "../ReactorCancellationToken";
 
 /** @internal */
 interface ReactorOptionsFull {
     time?: number,
     deleteMessage: boolean,
+    cancellationToken?: ReactorCancellationToken,
 }
 
 export type ReactorOptions = Partial<ReactorOptionsFull>;
 export type UserFilter = (user: User) => boolean;
+
 export interface OnCollectParams<T> {
     readonly collector: ReactionCollector;
     readonly reaction: MessageReaction;
@@ -60,6 +63,9 @@ export async function reactor<T>(
             return message.delete().then(() => value, () => value);
         return value;
     });
+
+    if (opts.cancellationToken)
+        opts.cancellationToken.onCancel = () => collector.stop();
 
     for (const e of emojis) {
         if (stop) return promise;
