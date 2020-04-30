@@ -2,8 +2,11 @@ import { Message, User, EmojiResolvable, MessageReaction, ReactionCollector } fr
 import { ReactorCancellationToken } from "../models/ReactorCancellationToken";
 
 interface ReactorOptionsFull {
+    /** If set, the reactor is resolved after this amount of time (in milliseconds). */
     time?: number,
+    /** If set to true, the message of the reactor if deleted just before being resolved. (default is false) */
     deleteMessage: boolean,
+    /** If set, this reactor will be resolved as soon as the cancel method of the token is called. */
     cancellationToken?: ReactorCancellationToken,
 }
 
@@ -37,7 +40,6 @@ export async function reactor<T>(
     userFilter?: UserFilter,
     options?: ReactorOptions
 ) {
-    //
     const opts = Object.assign({}, defaultOptions, options);
     let stop = false;
 

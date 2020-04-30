@@ -10,6 +10,7 @@ export class ReactorCancellationToken {
 
     /** @internal */
     set onCancel(cb: () => void) {
+        console.log("onCancel", this.isCanceled);
         if (this.isCanceled)
             cb();
         else
