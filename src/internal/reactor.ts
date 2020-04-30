@@ -1,13 +1,13 @@
 import { Message, User, EmojiResolvable, MessageReaction, ReactionCollector } from "discord.js";
-import { ReactorCancellationToken } from "../models/ReactorCancellationToken";
+import { ReactorStopToken } from "../models/ReactorStopToken";
 
 interface ReactorOptionsFull {
     /** If set, the reactor is resolved after this amount of time (in milliseconds). */
     time?: number,
     /** If set to true, the message of the reactor if deleted just before being resolved. (default is false) */
     deleteMessage: boolean,
-    /** If set, this reactor will be resolved as soon as the cancel method of the token is called. */
-    cancellationToken?: ReactorCancellationToken,
+    /** If set, this reactor will be resolved as soon as the stop method of the token is called. */
+    cancellationToken?: ReactorStopToken,
 }
 
 export type ReactorOptions = Partial<ReactorOptionsFull>;
@@ -66,7 +66,7 @@ export async function reactor<T>(
     });
 
     if (opts.cancellationToken)
-        opts.cancellationToken.onCancel = () => collector.stop();
+        opts.cancellationToken.onStop = () => collector.stop();
 
     for (const e of emojis) {
         if (stop) return promise;
