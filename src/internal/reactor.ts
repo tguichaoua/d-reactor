@@ -1,7 +1,6 @@
 import { Message, User, EmojiResolvable, MessageReaction, ReactionCollector } from "discord.js";
 import { ReactorCancellationToken } from "../ReactorCancellationToken";
 
-/** @internal */
 interface ReactorOptionsFull {
     time?: number,
     deleteMessage: boolean,
