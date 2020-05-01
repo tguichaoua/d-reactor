@@ -19,11 +19,11 @@ export function unanimousVote<T>(
     options?: ReactorListOptions<T>
 ) {
     if (users.length === 0) return Promise.resolve(null);
-    return reactorList<T>(
+    return reactorList<T, T>(
         channel,
         caption,
         list,
-        () => null,
+        undefined,
         ({ reaction, resolve, index }) => {
             if (users.every(u => reaction.users.cache.has(u.id)))
                 resolve(list[index]);

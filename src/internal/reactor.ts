@@ -3,7 +3,7 @@ import { ReactorStopToken } from "../models/ReactorStopToken";
 
 interface ReactorOptionsFull {
     /** If set, the reactor is resolved after this amount of time (in milliseconds). */
-    time?: number,
+    duration?: number,
     /** If set to true, the message of the reactor if deleted just before being resolved. (default is false) */
     deleteMessage: boolean,
     /** If set, this reactor will be resolved as soon as the stop method of the token is called. */
@@ -46,7 +46,7 @@ export async function reactor<T>(
     const collector = message.createReactionCollector(
         (reaction: MessageReaction, user: User) => (userFilter === undefined || userFilter(user)) && emojis.includes(reaction.emoji.name),
         {
-            time: opts.time
+            time: opts.duration
         }
     );
 

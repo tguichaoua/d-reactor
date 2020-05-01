@@ -1,32 +1,36 @@
 import { TextBasedChannelFields, ReactionCollector } from "discord.js";
 import { ReactorOptions, reactor, OnCollectParams, UserFilter } from "./reactor";
-import { sendListMessage } from "./sendListMessage";
-import indexed_emojis from "../indexed-emojis";
+import { sendListMessage, ListOptions } from "./sendListMessage";
 
-export type ReactorListOptions<T> = ReactorOptions & {
-    /** This function is called for each element in the list to convert them into a string in the message. (default is o => `${o}`) */
-    stringify?: (o: T) => string
-};
+export type ReactorListOptions<T> = ReactorOptions & ListOptions<T>;
 
 /** @internal */
-export async function reactorList<T>(
+export async function reactorList<T, R>(
     channel: TextBasedChannelFields,
     caption: string,
     list: readonly T[],
-    onEnd: (collector: ReactionCollector) => T | null,
-    onCollect?: (params: OnCollectParams<T | null> & { readonly index: number }) => void,
+    onEnd?: (collector: ReactionCollector, votes: number[]) => R | null,
+    onCollect?: (params: OnCollectParams<R> & { readonly index: number }) => void,
     userFilter?: UserFilter,
-    options?: ReactorListOptions<T>
+    options?: ReactorListOptions<T>,
 ) {
     if (list.length === 0) return null;
-    const message = await sendListMessage(channel, caption, list, options?.stringify);
-    const emojis = indexed_emojis.slice(0, list.length);
+    const { message, emojis } = await sendListMessage(channel, caption, list, options);
 
-    return reactor<T | null>(
+    return reactor<R | null>(
         message,
         emojis,
-        onEnd,
-        onCollect ? (params) => onCollect(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) })) : undefined,
+        onEnd ?
+            c => {
+                const votes = new Array<number>(list.length).fill(0);
+                for (const r of c.collected.values())
+                    votes[emojis.indexOf(r.emoji.name)] = r.count ?? 0;
+                return onEnd(c, votes);
+            }
+            : () => null,
+        onCollect ?
+            (params) => onCollect(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) }))
+            : undefined,
         userFilter,
         options
     );
