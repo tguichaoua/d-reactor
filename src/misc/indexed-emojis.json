@@ -1,5 +1,4 @@
-//https://emojiterra.com/letters/
-const indexed_emojis: ReadonlyArray<string> = [
+[
     "0️⃣",
     "1️⃣",
     "2️⃣",
@@ -35,7 +34,5 @@ const indexed_emojis: ReadonlyArray<string> = [
     "🇼",
     "🇽",
     "🇾",
-    "🇿",
-];
-
-export default indexed_emojis;
+    "🇿"
+]

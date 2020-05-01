@@ -1,6 +1,6 @@
 import { TextBasedChannelFields, ReactionCollector } from "discord.js";
-import { ReactorOptions, reactor, OnCollectParams, UserFilter } from "./reactor";
-import { sendListMessage, ListOptions } from "./sendListMessage";
+import { ReactorOptions, reactor, OnCollectParams, UserFilter } from "internal/reactor";
+import { sendListMessage, ListOptions } from "internal/sendListMessage";
 
 export type ReactorListOptions<T> = ReactorOptions & ListOptions<T>;
 

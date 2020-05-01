@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
-import emoji from "../emoji";
-import { ReactorOptions, reactor, UserFilter } from "../internal/reactor";
+import emoji from "misc/emoji.json";
+import { ReactorOptions, reactor, UserFilter } from "internal/reactor";
 
 /**
  * The returned promised is resolve when user click on one of the added reaction.
@@ -12,9 +12,9 @@ import { ReactorOptions, reactor, UserFilter } from "../internal/reactor";
 export async function confirm(message: Message, userFilter?: UserFilter, options?: ReactorOptions) {
     return reactor(
         message,
-        [emoji.CHECK_MARK, emoji.CROSS_MARK],
+        [emoji.checkMark, emoji.crossMark],
         () => false,
-        ({reaction, resolve}) => resolve(reaction.emoji.name === emoji.CHECK_MARK),
+        ({reaction, resolve}) => resolve(reaction.emoji.name === emoji.checkMark),
         userFilter,
         options
     );

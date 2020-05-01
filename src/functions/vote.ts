@@ -1,7 +1,7 @@
 import { TextBasedChannelFields } from "discord.js";
-import { ReactorListOptions, reactorList } from "../internal/reactorList";
-import { UserFilter } from "../internal/reactor";
-import { reactorVote } from "../internal/reactorVote";
+import { ReactorListOptions, reactorList } from "internal/reactorList";
+import { UserFilter } from "internal/reactor";
+import { reactorVote } from "internal/reactorVote";
 
 
 export function vote<T>(
