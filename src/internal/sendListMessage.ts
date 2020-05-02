@@ -31,7 +31,7 @@ export async function sendListMessage<T>(
         throw new Error("The number of elements in list cannot exceed 36.");
 
     const opts = Object.assign({}, defautlOptions, options);
-    const emojis = [...opts.emojis, ...indexed_emojis.slice(opts.emojis.length, list.length - opts.emojis.length)];
+    const emojis = [...opts.emojis, ...indexed_emojis.slice(opts.emojis.length, list.length)];
 
     let str = `${caption}\n`;
     for (let i = 0; i < list.length; i++)
