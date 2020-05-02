@@ -1,5 +1,5 @@
 import { TextBasedChannelFields, User } from "discord.js";
-import { reactorList, ReactorListOptions } from "../internal/reactorList";
+import { reactorList, ListOptions } from "../internal/reactorList";
 
 /**
  * The returned promise is resolve when all user in `users` vote for the same element.
@@ -16,7 +16,7 @@ export function unanimousVote<T>(
     caption: string,
     users: readonly User[],
     list: readonly T[],
-    options?: ReactorListOptions<T>
+    options?: ListOptions<T>
 ) {
     if (users.length === 0) return Promise.resolve(null);
     return reactorList<T, T>(

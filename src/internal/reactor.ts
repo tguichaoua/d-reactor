@@ -30,13 +30,13 @@ const defaultOptions: ReactorOptionsFull = {
  * 
  * @param onEnd - called when reaction collection end and promise not resolved.
  * 
- * @param userFilter - Determin if a user is allow to react.
+ * @param userFilter - Determine if a user is allow to react.
  */
 export async function reactor<T>(
     message: Message,
     emojis: readonly EmojiResolvable[],
     onEnd: (collector: ReactionCollector) => T,
-    onCollect?: (params: OnCollectParams<T>) => void,
+    onCollect?: (params: OnCollectParams<T>) => boolean | void,
     userFilter?: UserFilter,
     options?: ReactorOptions
 ) {
@@ -44,12 +44,17 @@ export async function reactor<T>(
     let stop = false;
 
     const collector = message.createReactionCollector(
-        (reaction: MessageReaction, user: User) => !user.bot && (userFilter === undefined || userFilter(user)) && emojis.includes(reaction.emoji.name)
+        (reaction: MessageReaction, _: User) => emojis.includes(reaction.emoji.name)
     );
 
     const promise = new Promise<T>((resolve, reject) => {
-        if (onCollect)
-            collector.on("collect", (reaction, user) => onCollect({ collector, reaction, user, resolve, reject }));
+        collector.on("collect", async (reaction, user) => {
+            if (
+                (userFilter && !userFilter(user)) ||
+                (onCollect && !(onCollect({ collector, reaction, user, resolve, reject }) ?? true))
+            )
+                await reaction.users.remove(user);
+        });
         collector.once("end", () => {
             if (!stop)
                 resolve(onEnd(collector))

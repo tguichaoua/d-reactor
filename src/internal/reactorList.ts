@@ -1,8 +1,8 @@
 import { TextBasedChannelFields, ReactionCollector } from "discord.js";
 import { ReactorOptions, reactor, OnCollectParams, UserFilter } from "./reactor";
-import { sendListMessage, ListOptions } from "./sendListMessage";
+import { sendListMessage, MessageListOptions } from "./sendListMessage";
 
-export type ReactorListOptions<T> = ReactorOptions & ListOptions<T>;
+export type ListOptions<T> = ReactorOptions & MessageListOptions<T>;
 
 /** @internal */
 export async function reactorList<T, R>(
@@ -10,9 +10,9 @@ export async function reactorList<T, R>(
     caption: string,
     list: readonly T[],
     onEnd?: (collector: ReactionCollector, votes: number[]) => R | null,
-    onCollect?: (params: OnCollectParams<R> & { readonly index: number }) => void,
+    onCollect?: (params: OnCollectParams<R> & { readonly index: number }) => boolean | void,
     userFilter?: UserFilter,
-    options?: ReactorListOptions<T>,
+    options?: ListOptions<T>,
 ) {
     if (list.length === 0) return null;
     const { message, emojis } = await sendListMessage(channel, caption, list, options);
@@ -24,7 +24,7 @@ export async function reactorList<T, R>(
             c => {
                 const votes = new Array<number>(list.length).fill(0);
                 for (const r of c.collected.values())
-                    votes[emojis.indexOf(r.emoji.name)] = r.count ?? 0;
+                    votes[emojis.indexOf(r.emoji.name)] = (r.count ?? 1) - 1; // -1 to remove the reaction added by the bot.
                 return onEnd(c, votes);
             }
             : () => null,

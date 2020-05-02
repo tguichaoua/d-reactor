@@ -1,11 +1,10 @@
 import { TextBasedChannelFields } from "discord.js";
-import { ReactorListOptions } from "../internal/reactorList";
+import { ListOptions } from "../internal/reactorList";
 import { UserFilter } from "../internal/reactor";
 import { reactorVote } from "../internal/reactorVote";
 
 /**
  * The returned promise is resolved after the duration.
- * The resolved value is an VoteResult<T> (@see VoteResult).
  * @param channel - The channel where to post the vote message.
  * @param caption - Message caption
  * @param list - A list of element
@@ -19,7 +18,7 @@ export function vote<T>(
     list: readonly T[],
     duration: number,
     userFilter?: UserFilter,
-    options?: ReactorListOptions<T>
+    options?: ListOptions<T>
 ) {
     options = Object.assign(options ?? {}, { duration });
     return reactorVote<T>(

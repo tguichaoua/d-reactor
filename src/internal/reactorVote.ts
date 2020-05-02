@@ -1,5 +1,5 @@
 import { TextBasedChannelFields } from "discord.js";
-import { ReactorListOptions, reactorList } from "./reactorList";
+import { reactorList, ListOptions } from "./reactorList";
 import { UserFilter } from "./reactor";
 
 interface VoteElement<T> {
@@ -16,14 +16,29 @@ export interface VoteResult<T> {
     top: VoteElement<T>[];
 }
 
+interface VoteOptionsFull {
+    /** Determine the number maximal of vote a user can do.
+     * Negative or null number are considered as `unlimited`.
+     * Default is `unlimited`.
+     */
+    votePerUser?: number
+}
+
+export type VoteOptions<T> = ListOptions<T> & Partial<VoteOptionsFull>;
+
+/** @internal */
+const defaultOptions: VoteOptionsFull = {
+}
+
 /** @internal */
 export function reactorVote<T>(
     channel: TextBasedChannelFields,
     caption: string,
     list: readonly T[],
     userFilter?: UserFilter,
-    options?: ReactorListOptions<T>
+    options?: VoteOptions<T>
 ) {
+    options = Object.assign(options ?? {}, defaultOptions);
     return reactorList<T, VoteResult<T>>(
         channel,
         caption,
@@ -42,7 +57,10 @@ export function reactorVote<T>(
 
             return { ordered, top };
         },
-        undefined,
+        ({ user, collector }) => {
+            if (options?.votePerUser && options.votePerUser > 0)
+                return collector.collected.filter(r => r.users.cache.has(user.id)).size <= options.votePerUser;
+        },
         userFilter,
         options
     );

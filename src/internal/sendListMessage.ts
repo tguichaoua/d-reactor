@@ -1,7 +1,7 @@
 import { TextBasedChannelFields, EmojiResolvable } from "discord.js";
 import indexed_emojis from "../misc/indexed-emojis.json";
 
-export interface ListOptionsFull<T> {
+export interface MessageListOptionsFull<T> {
     /** This function is called for each element in the list to convert them into a string in the message. (default is `o => '${o}'`) */
     stringify: (o: T) => string,
     /** This list of emojis is used to determine the emoji that represent each elements of the list.
@@ -12,10 +12,10 @@ export interface ListOptionsFull<T> {
 
 };
 
-export type ListOptions<T> = Partial<ListOptionsFull<T>>
+export type MessageListOptions<T> = Partial<MessageListOptionsFull<T>>
 
 /** @internal */
-const defautlOptions: ListOptionsFull<any> = {
+const defautlOptions: MessageListOptionsFull<any> = {
     stringify: o => `${o}`,
     emojis: [],
 }
@@ -25,7 +25,7 @@ export async function sendListMessage<T>(
     channel: TextBasedChannelFields,
     caption: string,
     list: readonly T[],
-    options?: ListOptions<T>
+    options?: MessageListOptions<T>
 ) {
     if (list.length > 36)
         throw new Error("The number of elements in list cannot exceed 36.");
