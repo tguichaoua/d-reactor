@@ -12,7 +12,7 @@ export function vote<T>(
     userFilter?: UserFilter,
     options?: ReactorListOptions<T>
 ) {
-    Object.assign(options, { duration });
+    options = Object.assign(options ?? {}, { duration });
     return reactorVote<T>(
         channel,
         caption,
