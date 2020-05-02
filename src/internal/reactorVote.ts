@@ -3,15 +3,20 @@ import { ReactorListOptions, reactorList } from "./reactorList";
 import { UserFilter } from "./reactor";
 
 interface VoteElement<T> {
+    /** An element of the list. */
     value: T;
+    /** The number of vote that the element received. */
     vote: number;
 }
 
 export interface VoteResult<T> {
+    /** An array that contains all element with their number of vote ordered by vote count (most voted first). */
     ordered: VoteElement<T>[];
+    /** An array of elements that received the most of vote. */
     top: VoteElement<T>[];
 }
 
+/** @internal */
 export function reactorVote<T>(
     channel: TextBasedChannelFields,
     caption: string,

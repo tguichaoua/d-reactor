@@ -4,7 +4,7 @@ import { ReactorOptions, reactor, UserFilter } from "../internal/reactor";
 
 /**
  * The returned promised is resolve when user click on one of the added reaction.
- * The resolved value is true if the user click on the check mark reaction, false otherwise.
+ * The resolved value is true if the user click on ✅, false otherwise.
  * @param message - The message that received reactions.
  * @param userFilter - Determines if a user is allow to react.
  * @param options 

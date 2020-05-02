@@ -2,11 +2,11 @@ import { Message, User, EmojiResolvable, MessageReaction, ReactionCollector } fr
 import { ReactorStopToken } from "../models/ReactorStopToken";
 
 interface ReactorOptionsFull {
-    /** If set, the reactor is resolved after this amount of time (in milliseconds). */
+    /** If set, the promise is resolved after this amount of time (in milliseconds). */
     duration?: number,
-    /** If set to true, the message of the reactor if deleted just before being resolved. (default is false) */
+    /** If set to true, the message is deleted just before the promise is resolved. (default is false) */
     deleteMessage: boolean,
-    /** If set, this reactor will be resolved as soon as the stop method of the token is called. */
+    /** If set, the promise will be resolved as soon as the stop method of the token is called. */
     cancellationToken?: ReactorStopToken,
 }
 
