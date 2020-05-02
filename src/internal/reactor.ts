@@ -44,7 +44,7 @@ export async function reactor<T>(
     let stop = false;
 
     const collector = message.createReactionCollector(
-        (reaction: MessageReaction, user: User) => (userFilter === undefined || userFilter(user)) && emojis.includes(reaction.emoji.name)
+        (reaction: MessageReaction, user: User) => !user.bot && (userFilter === undefined || userFilter(user)) && emojis.includes(reaction.emoji.name)
     );
 
     const promise = new Promise<T>((resolve, reject) => {
