@@ -1,7 +1,6 @@
 import { TextBasedChannelFields } from "discord.js";
-import { ListOptions } from "../internal/reactorList";
 import { UserFilter } from "../internal/reactor";
-import { reactorVote } from "../internal/reactorVote";
+import { reactorVote, VoteOptions } from "../internal/reactorVote";
 
 /**
  * The returned promise is resolved after the duration.
@@ -18,7 +17,7 @@ export function vote<T>(
     list: readonly T[],
     duration: number,
     userFilter?: UserFilter,
-    options?: ListOptions<T>
+    options?: VoteOptions<T>
 ) {
     options = Object.assign(options ?? {}, { duration });
     return reactorVote<T>(
