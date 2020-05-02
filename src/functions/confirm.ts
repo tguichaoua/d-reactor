@@ -15,6 +15,7 @@ export async function confirm(message: Message, userFilter?: UserFilter, options
         [emoji.checkMark, emoji.crossMark],
         () => false,
         ({reaction, resolve}) => resolve(reaction.emoji.name === emoji.checkMark),
+        undefined,
         userFilter,
         options
     );

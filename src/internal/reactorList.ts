@@ -9,8 +9,9 @@ export async function reactorList<T, R>(
     channel: TextBasedChannelFields,
     caption: string,
     list: readonly T[],
-    onEnd?: (collector: ReactionCollector, votes: number[]) => R | null,
+    onEnd?: (collector: ReactionCollector) => R | null,
     onCollect?: (params: OnCollectParams<R> & { readonly index: number }) => boolean | void,
+    onRemove?: (params: OnCollectParams<R> & { readonly index: number }) => void,
     userFilter?: UserFilter,
     options?: ListOptions<T>,
 ) {
@@ -20,16 +21,12 @@ export async function reactorList<T, R>(
     return reactor<R | null>(
         message,
         emojis,
-        onEnd ?
-            c => {
-                const votes = new Array<number>(list.length).fill(0);
-                for (const r of c.collected.values())
-                    votes[emojis.indexOf(r.emoji.name)] = (r.count ?? 1) - 1; // -1 to remove the reaction added by the bot.
-                return onEnd(c, votes);
-            }
-            : () => null,
+        onEnd ?? (() => null),
         onCollect ?
             (params) => onCollect(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) }))
+            : undefined,
+        onRemove ?
+            (params) => onRemove(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) }))
             : undefined,
         userFilter,
         options

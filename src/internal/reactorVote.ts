@@ -1,4 +1,4 @@
-import { TextBasedChannelFields } from "discord.js";
+import { TextBasedChannelFields, User } from "discord.js";
 import { reactorList, ListOptions } from "./reactorList";
 import { UserFilter } from "./reactor";
 
@@ -39,13 +39,18 @@ export function reactorVote<T>(
     options?: VoteOptions<T>
 ) {
     options = Object.assign(options ?? {}, defaultOptions);
+
+    const votes = new Array<User[]>(list.length);
+    for (let i = 0; i < list.length; i++)
+        votes[i] = new Array<User>();
+
     return reactorList<T, VoteResult<T>>(
         channel,
         caption,
         list,
-        (_, votes) => {
+        () => {
             const ordered = list
-                .map((value, index) => { return { value, vote: votes[index] } })
+                .map((value, index) => { return { value, vote: votes[index].length } })
                 .sort((a, b) => b.vote - a.vote);
             let vote = ordered[0].vote;
             const top: VoteElement<T>[] = [];
@@ -57,9 +62,21 @@ export function reactorVote<T>(
 
             return { ordered, top };
         },
-        ({ user, collector }) => {
+        ({ user, index }) => {
+            console.log("VOTE", user.username);
+            let canVote = true;
             if (options?.votePerUser && options.votePerUser > 0)
-                return collector.collected.filter(r => r.users.cache.has(user.id)).size <= options.votePerUser;
+                canVote = votes.filter(users => users.includes(user)).length <= options.votePerUser;
+            const users = votes[index];
+            if (canVote && !users.includes(user))
+                users.push(user);
+            return canVote;
+        },
+        ({ user, index }) => {
+            const users = votes[index];
+            const i = users.indexOf(user);
+            if (i !== -1)
+                users.splice(i, 1);
         },
         userFilter,
         options

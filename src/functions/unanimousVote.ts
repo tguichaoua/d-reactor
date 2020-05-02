@@ -28,6 +28,7 @@ export function unanimousVote<T>(
             if (users.every(u => reaction.users.cache.has(u.id)))
                 resolve(list[index]);
         },
+        undefined,
         user => users.some(u => u.id === user.id),
         options
     )

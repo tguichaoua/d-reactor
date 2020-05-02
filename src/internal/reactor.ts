@@ -37,6 +37,7 @@ export async function reactor<T>(
     emojis: readonly EmojiResolvable[],
     onEnd: (collector: ReactionCollector) => T,
     onCollect?: (params: OnCollectParams<T>) => boolean | void,
+    onRemove?: (params: OnCollectParams<T>) => void,
     userFilter?: UserFilter,
     options?: ReactorOptions
 ) {
@@ -44,7 +45,10 @@ export async function reactor<T>(
     let stop = false;
 
     const collector = message.createReactionCollector(
-        (reaction: MessageReaction, _: User) => emojis.includes(reaction.emoji.name)
+        (reaction: MessageReaction, _: User) => emojis.includes(reaction.emoji.name),
+        {
+            dispose: true,
+        }
     );
 
     const promise = new Promise<T>((resolve, reject) => {
@@ -55,14 +59,21 @@ export async function reactor<T>(
                     (userFilter && !userFilter(user)) ||
                     (onCollect && !(onCollect({ collector, reaction, user, resolve, reject }) ?? true))
                 )
-            )
-                reaction.users.remove(user);
-        });
-        collector.once("end", () => {
-            if (!stop) {
-
-                resolve(onEnd(collector))
+            ) {
+                await reaction.users.remove(user).catch(() => { });
             }
+        });
+        collector.on("dispose", (reaction, user) => {
+            console.log(`Dispose ${reaction.emoji.name} by ${user.username}`);
+        });
+        collector.on("remove", (reaction, user) => {
+            console.log(`Remove ${reaction.emoji.name} by ${user.username}`);
+            if (onRemove)
+                onRemove({ collector, reaction, user, resolve, reject });
+        });
+        collector.once("end", async () => {
+            if (!stop)
+                resolve(onEnd(collector));
         });
     }).then(value => {
         stop = true;
