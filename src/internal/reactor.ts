@@ -44,10 +44,7 @@ export async function reactor<T>(
     let stop = false;
 
     const collector = message.createReactionCollector(
-        (reaction: MessageReaction, user: User) => (userFilter === undefined || userFilter(user)) && emojis.includes(reaction.emoji.name),
-        {
-            time: opts.duration
-        }
+        (reaction: MessageReaction, user: User) => (userFilter === undefined || userFilter(user)) && emojis.includes(reaction.emoji.name)
     );
 
     const promise = new Promise<T>((resolve, reject) => {
@@ -59,6 +56,8 @@ export async function reactor<T>(
         });
     }).then(value => {
         stop = true;
+        if (timer)
+            message.client.clearTimeout(timer);
         collector.stop();
         if (opts.deleteMessage)
             return message.delete().then(() => value, () => value);
@@ -72,6 +71,10 @@ export async function reactor<T>(
         if (stop) return promise;
         await message.react(e).catch(() => { });
     }
+
+    let timer: NodeJS.Timer;
+    if (opts.duration)
+        timer = message.client.setTimeout(() => collector.stop(), opts.duration);
 
     return promise;
 }
