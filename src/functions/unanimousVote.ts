@@ -1,5 +1,5 @@
 import { TextBasedChannelFields, User } from "discord.js";
-import { reactorList, ReactorListOptions } from "internal/reactorList";
+import { reactorList, ReactorListOptions } from "../internal/reactorList";
 
 /**
  * The returned promise is resolve when all user in users vote for the same element.

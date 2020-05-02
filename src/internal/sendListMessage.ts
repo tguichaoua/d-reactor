@@ -1,5 +1,5 @@
 import { TextBasedChannelFields, EmojiResolvable } from "discord.js";
-import indexed_emojis from "misc/indexed-emojis.json";
+import indexed_emojis from "../misc/indexed-emojis.json";
 
 export interface ListOptionsFull<T> {
     /** This function is called for each element in the list to convert them into a string in the message. (default is o => `${o}`) */

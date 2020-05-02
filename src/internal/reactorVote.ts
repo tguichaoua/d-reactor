@@ -1,6 +1,6 @@
-import { TextBasedChannelFields, User } from "discord.js";
-import { ReactorListOptions, reactorList } from "internal/reactorList";
-import { UserFilter } from "internal/reactor";
+import { TextBasedChannelFields } from "discord.js";
+import { ReactorListOptions, reactorList } from "./reactorList";
+import { UserFilter } from "./reactor";
 
 interface VoteElement<T> {
     value: T;

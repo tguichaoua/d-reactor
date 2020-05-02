@@ -1,5 +1,5 @@
 import { Message, User, EmojiResolvable, MessageReaction, ReactionCollector } from "discord.js";
-import { ReactorStopToken } from "models/ReactorStopToken";
+import { ReactorStopToken } from "../models/ReactorStopToken";
 
 interface ReactorOptionsFull {
     /** If set, the reactor is resolved after this amount of time (in milliseconds). */

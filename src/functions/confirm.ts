@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
-import emoji from "misc/emoji.json";
-import { ReactorOptions, reactor, UserFilter } from "internal/reactor";
+import emoji from "../misc/emoji.json";
+import { ReactorOptions, reactor, UserFilter } from "../internal/reactor";
 
 /**
  * The returned promised is resolve when user click on one of the added reaction.
