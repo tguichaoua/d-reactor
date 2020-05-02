@@ -56,17 +56,20 @@ export async function reactor<T>(
                     (onCollect && !(onCollect({ collector, reaction, user, resolve, reject }) ?? true))
                 )
             )
-                await reaction.users.remove(user);
+                reaction.users.remove(user);
         });
         collector.once("end", () => {
-            if (!stop)
+            if (!stop) {
+
                 resolve(onEnd(collector))
+            }
         });
     }).then(value => {
         stop = true;
         if (timer)
             message.client.clearTimeout(timer);
         collector.stop();
+
         if (opts.deleteMessage)
             return message.delete().then(() => value, () => value);
         return value;

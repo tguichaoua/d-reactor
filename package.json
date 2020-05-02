@@ -30,12 +30,12 @@
     },
     "homepage": "https://github.com/baanloh/discord-reactor#readme",
     "devDependencies": {
+        "@types/ws": "^7.2.4",
         "typedoc": "^0.17.6",
         "typescript": "^3.8.3"
     },
     "dependencies": {
         "@types/node": "^13.13.4",
-        "@types/ws": "^7.2.4",
         "discord.js": "^12.2.0"
     }
 }
