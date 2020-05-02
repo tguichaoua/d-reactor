@@ -50,8 +50,11 @@ export async function reactor<T>(
     const promise = new Promise<T>((resolve, reject) => {
         collector.on("collect", async (reaction, user) => {
             if (
-                (userFilter && !userFilter(user)) ||
-                (onCollect && !(onCollect({ collector, reaction, user, resolve, reject }) ?? true))
+                user.id !== message.client.user?.id && // don't trigger userFilter & onCollect if the user is the bot
+                (
+                    (userFilter && !userFilter(user)) ||
+                    (onCollect && !(onCollect({ collector, reaction, user, resolve, reject }) ?? true))
+                )
             )
                 await reaction.users.remove(user);
         });
