@@ -1,28 +1,25 @@
 import { Message, User, EmojiResolvable, MessageReaction, ReactionCollector } from "discord.js";
-import { ReactorStopToken } from "../models/ReactorStopToken";
+import PCancelable from "p-cancelable";
 
 interface ReactorOptionsFull {
     /** If set, the promise is resolved after this amount of time (in milliseconds). */
     duration?: number,
     /** If set to true, the message is deleted just before the promise is resolved. (default is false) */
     deleteMessage: boolean,
-    /** If set, the promise will be resolved as soon as the stop method of the token is called. */
-    cancellationToken?: ReactorStopToken,
 }
 
 export type ReactorOptions = Partial<ReactorOptionsFull>;
 export type UserFilter = (user: User) => boolean;
 
-export interface OnCollectParams<T> {
+/** @internal */
+export interface OnReactionChangedParams {
     readonly collector: ReactionCollector;
     readonly reaction: MessageReaction;
     readonly user: User;
-    readonly resolve: (value?: T | PromiseLike<T>) => void;
-    readonly reject: (reason?: any) => void;
 }
 
 /** @internal */
-const defaultOptions: ReactorOptionsFull = {
+const defaultOptions: Readonly<ReactorOptionsFull> = {
     deleteMessage: false,
 }
 
@@ -36,8 +33,8 @@ export async function reactor<T>(
     message: Message,
     emojis: readonly EmojiResolvable[],
     onEnd: (collector: ReactionCollector) => T,
-    onCollect?: (params: OnCollectParams<T>) => boolean | void,
-    onRemove?: (params: OnCollectParams<T>) => void,
+    onCollect?: (params: OnReactionChangedParams) => { value: T } | boolean | void,
+    onRemove?: (params: OnReactionChangedParams) => void,
     userFilter?: UserFilter,
     options?: ReactorOptions
 ) {
@@ -51,47 +48,57 @@ export async function reactor<T>(
         }
     );
 
-    const promise = new Promise<T>((resolve, reject) => {
-        collector.on("collect", async (reaction, user) => {
-            if (
-                user.id !== message.client.user?.id && // don't trigger userFilter & onCollect if the user is the bot
-                (
-                    (userFilter && !userFilter(user)) ||
-                    (onCollect && !(onCollect({ collector, reaction, user, resolve, reject }) ?? true))
-                )
-            ) {
-                await reaction.users.remove(user).catch(() => { });
+    const promise = new PCancelable<T>(
+        (resolve, reject, onCancel) => {
+            onCancel(() => collector.stop());
+
+            function onResolve(value: T) {
+                stop = true;
+                if (timer)
+                    message.client.clearTimeout(timer);
+                collector.stop();
+
+                if (opts.deleteMessage)
+                    resolve(message.delete().then(() => value, () => value));
+                resolve(value);
             }
-        });
-        collector.on("dispose", (reaction, user) => {
-            console.log(`Dispose ${reaction.emoji.name} by ${user.username}`);
-        });
-        collector.on("remove", (reaction, user) => {
-            console.log(`Remove ${reaction.emoji.name} by ${user.username}`);
+
+            if (onCollect)
+                collector.on("collect", async (reaction, user) => {
+                    if (
+                        user.id !== message.client.user?.id && // don't trigger userFilter & onCollect if the user is the bot
+                        (userFilter && !userFilter(user))
+                    ) {
+                        const action = onCollect({ collector, reaction, user });
+                        if (typeof action === "boolean" || !action) {
+                            if (!(action ?? true))
+                                await reaction.users.remove(user).catch(() => { });
+                        }
+                        else
+                            onResolve(action.value);
+                    }
+                });
+
+            // collector.on("dispose", (reaction, user) => {
+            //     console.log(`Dispose ${reaction.emoji.name} by ${user.username}`);
+            // });
+
             if (onRemove)
-                onRemove({ collector, reaction, user, resolve, reject });
-        });
-        collector.once("end", async () => {
-            if (!stop)
-                resolve(onEnd(collector));
-        });
-    }).then(value => {
-        stop = true;
-        if (timer)
-            message.client.clearTimeout(timer);
-        collector.stop();
+                collector.on("remove", (reaction, user) => {
+                    //console.log(`Remove ${reaction.emoji.name} by ${user.username}`);
+                    onRemove({ collector, reaction, user });
+                });
 
-        if (opts.deleteMessage)
-            return message.delete().then(() => value, () => value);
-        return value;
-    });
-
-    if (opts.cancellationToken)
-        opts.cancellationToken.onStop = () => collector.stop();
+            collector.once("end", () => {
+                if (!stop)
+                    onResolve(onEnd(collector));
+            });
+        }
+    );
 
     for (const e of emojis) {
-        if (stop) return promise;
         await message.react(e).catch(() => { });
+        if (stop) return promise;
     }
 
     let timer: NodeJS.Timer;

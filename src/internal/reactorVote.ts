@@ -38,7 +38,7 @@ export function reactorVote<T>(
     userFilter?: UserFilter,
     options?: VoteOptions<T>
 ) {
-    options = Object.assign(options ?? {}, defaultOptions);
+    let opts = Object.assign({}, defaultOptions, options);
 
     const votes = new Array<User[]>(list.length);
     for (let i = 0; i < list.length; i++)
@@ -65,8 +65,8 @@ export function reactorVote<T>(
         ({ user, index }) => {
             console.log("VOTE", user.username);
             let canVote = true;
-            if (options?.votePerUser && options.votePerUser > 0)
-                canVote = votes.filter(users => users.includes(user)).length <= options.votePerUser;
+            if (opts.votePerUser && opts.votePerUser > 0)
+                canVote = votes.filter(users => users.includes(user)).length <= opts.votePerUser;
             const users = votes[index];
             if (canVote && !users.includes(user))
                 users.push(user);

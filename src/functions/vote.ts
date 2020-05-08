@@ -5,8 +5,8 @@ import { reactorVote, VoteOptions } from "../internal/reactorVote";
 /**
  * The returned promise is resolved after the duration.
  * @param channel - The channel where to post the vote message.
- * @param caption - Message caption
- * @param list - A list of element
+ * @param caption - Message caption.
+ * @param list - A list of element.
  * @param duration - Duration after which the promise is resolved. (This value override options.duration).
  * @param userFilter - Determines if a user is allow to react.
  * @param options 

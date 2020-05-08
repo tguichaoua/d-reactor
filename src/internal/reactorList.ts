@@ -1,5 +1,5 @@
 import { TextBasedChannelFields, ReactionCollector } from "discord.js";
-import { ReactorOptions, reactor, OnCollectParams, UserFilter } from "./reactor";
+import { ReactorOptions, reactor, OnReactionChangedParams, UserFilter } from "./reactor";
 import { sendListMessage, MessageListOptions } from "./sendListMessage";
 
 export type ListOptions<T> = ReactorOptions & MessageListOptions<T>;
@@ -10,8 +10,8 @@ export async function reactorList<T, R>(
     caption: string,
     list: readonly T[],
     onEnd?: (collector: ReactionCollector) => R | null,
-    onCollect?: (params: OnCollectParams<R> & { readonly index: number }) => boolean | void,
-    onRemove?: (params: OnCollectParams<R> & { readonly index: number }) => void,
+    onCollect?: (params: OnReactionChangedParams & { readonly index: number }) => {value: R} | boolean | void,
+    onRemove?: (params: OnReactionChangedParams & { readonly index: number }) => void,
     userFilter?: UserFilter,
     options?: ListOptions<T>,
 ) {
