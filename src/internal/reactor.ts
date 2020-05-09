@@ -24,12 +24,10 @@ const defaultOptions: Readonly<ReactorOptionsFull> = {
 }
 
 /** @internal
- * 
  * @param onEnd - called when reaction collection end and promise not resolved.
- * 
  * @param userFilter - Determine if a user is allow to react.
  */
-export async function reactor<T>(
+export function reactor<T>(
     message: Message,
     emojis: readonly EmojiResolvable[],
     onEnd: (collector: ReactionCollector) => T,
@@ -37,7 +35,7 @@ export async function reactor<T>(
     onRemove?: (params: OnReactionChangedParams) => void,
     userFilter?: UserFilter,
     options?: ReactorOptions
-) {
+): PCancelable<T> {
     const opts = Object.assign({}, defaultOptions, options);
     let stop = false;
 
@@ -48,8 +46,8 @@ export async function reactor<T>(
         }
     );
 
-    const promise = new PCancelable<T>(
-        (resolve, reject, onCancel) => {
+    return new PCancelable<T>(
+        async (resolve, reject, onCancel) => {
             onCancel(() => collector.stop());
 
             function onResolve(value: T) {
@@ -63,21 +61,22 @@ export async function reactor<T>(
                 resolve(value);
             }
 
-            if (onCollect)
-                collector.on("collect", async (reaction, user) => {
-                    if (
-                        user.id !== message.client.user?.id && // don't trigger userFilter & onCollect if the user is the bot
-                        (userFilter && !userFilter(user))
-                    ) {
-                        const action = onCollect({ collector, reaction, user });
-                        if (typeof action === "boolean" || !action) {
-                            if (!(action ?? true))
-                                await reaction.users.remove(user).catch(() => { });
-                        }
-                        else
-                            onResolve(action.value);
+
+            collector.on("collect", async (reaction, user) => {
+                if (user.id === message.client.user?.id) return; // don't trigger userFilter & onCollect if the user is the bot
+
+                if (userFilter && !userFilter(user))
+                    await reaction.users.remove(user).catch(() => { });
+
+                if (onCollect) {
+                    const action = onCollect({ collector, reaction, user });
+                    if (typeof action === "boolean" || !action) {
+                        if (!(action ?? true)) await reaction.users.remove(user).catch(() => { });
                     }
-                });
+                    else
+                        onResolve(action.value);
+                }
+            });
 
             // collector.on("dispose", (reaction, user) => {
             //     console.log(`Dispose ${reaction.emoji.name} by ${user.username}`);
@@ -85,7 +84,6 @@ export async function reactor<T>(
 
             if (onRemove)
                 collector.on("remove", (reaction, user) => {
-                    //console.log(`Remove ${reaction.emoji.name} by ${user.username}`);
                     onRemove({ collector, reaction, user });
                 });
 
@@ -93,17 +91,16 @@ export async function reactor<T>(
                 if (!stop)
                     onResolve(onEnd(collector));
             });
+
+
+            for (const e of emojis) {
+                await message.react(e).catch(() => { });
+                if (stop) break;
+            }
+
+            let timer: NodeJS.Timer;
+            if (!stop && opts.duration)
+                timer = message.client.setTimeout(() => collector.stop(), opts.duration);
         }
     );
-
-    for (const e of emojis) {
-        await message.react(e).catch(() => { });
-        if (stop) return promise;
-    }
-
-    let timer: NodeJS.Timer;
-    if (opts.duration)
-        timer = message.client.setTimeout(() => collector.stop(), opts.duration);
-
-    return promise;
 }

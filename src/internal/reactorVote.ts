@@ -1,12 +1,13 @@
 import { TextBasedChannelFields, User } from "discord.js";
 import { reactorList, ListOptions } from "./reactorList";
 import { UserFilter } from "./reactor";
+import PCancelable from "p-cancelable";
 
 interface VoteElement<T> {
     /** An element of the list. */
     value: T;
-    /** The number of vote that the element received. */
-    vote: number;
+    /** Users that vote for this element. */
+    users: User[];
 }
 
 export interface VoteResult<T> {
@@ -37,7 +38,7 @@ export function reactorVote<T>(
     list: readonly T[],
     userFilter?: UserFilter,
     options?: VoteOptions<T>
-) {
+): PCancelable<VoteResult<T> | null> {
     let opts = Object.assign({}, defaultOptions, options);
 
     const votes = new Array<User[]>(list.length);
@@ -50,12 +51,12 @@ export function reactorVote<T>(
         list,
         () => {
             const ordered = list
-                .map((value, index) => { return { value, vote: votes[index].length } })
-                .sort((a, b) => b.vote - a.vote);
-            let vote = ordered[0].vote;
+                .map((value, index) => { return { value, users: votes[index] } })
+                .sort((a, b) => b.users.length - a.users.length);
+            let topVoteCount = ordered[0].users.length;
             const top: VoteElement<T>[] = [];
             for (const e of ordered)
-                if (e.vote === vote)
+                if (e.users.length === topVoteCount)
                     top.push(e);
                 else
                     break;
@@ -63,10 +64,9 @@ export function reactorVote<T>(
             return { ordered, top };
         },
         ({ user, index }) => {
-            console.log("VOTE", user.username);
             let canVote = true;
             if (opts.votePerUser && opts.votePerUser > 0)
-                canVote = votes.filter(users => users.includes(user)).length <= opts.votePerUser;
+                canVote = votes.filter(users => users.includes(user)).length < opts.votePerUser;
             const users = votes[index];
             if (canVote && !users.includes(user))
                 users.push(user);

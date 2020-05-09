@@ -19,7 +19,7 @@ export function vote<T>(
     userFilter?: UserFilter,
     options?: VoteOptions<T>
 ) {
-    options = Object.assign(options ?? {}, { duration });
+    options = Object.assign({}, { duration }, options);
     return reactorVote<T>(
         channel,
         caption,

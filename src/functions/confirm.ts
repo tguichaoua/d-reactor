@@ -9,7 +9,7 @@ import { ReactorOptions, reactor, UserFilter } from "../internal/reactor";
  * @param userFilter - Determines if a user is allow to react.
  * @param options 
  */
-export async function confirm(message: Message, userFilter?: UserFilter, options?: ReactorOptions) {
+export function confirm(message: Message, userFilter?: UserFilter, options?: ReactorOptions) {
     return reactor(
         message,
         [emoji.checkMark, emoji.crossMark],
