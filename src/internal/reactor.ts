@@ -48,7 +48,10 @@ export function reactor<T>(
 
     return new PCancelable<T>(
         async (resolve, reject, onCancel) => {
-            onCancel(() => collector.stop());
+            onCancel(() => {
+                console.log("onCancel");
+                collector.stop();
+            });
 
             function onResolve(value: T) {
                 stop = true;
@@ -97,6 +100,7 @@ export function reactor<T>(
                 });
 
             collector.once("end", () => {
+                console.log("end");
                 if (!stop) {
                     if (onEnd)
                         onResolve(onEnd(collector));
