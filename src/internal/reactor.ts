@@ -35,7 +35,7 @@ export function reactor<T>(
     onRemove?: (params: OnReactionChangedParams) => void,
     userFilter?: UserFilter,
     options?: ReactorOptions
-): PCancelable<T> {
+) {
     const opts = Object.assign({}, defaultOptions, options);
     let stop = false;
 

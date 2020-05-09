@@ -15,7 +15,7 @@ export function reactorList<T, R>(
     onRemove?: (params: OnReactionChangedParams & { readonly index: number }) => void,
     userFilter?: UserFilter,
     options?: ListOptions<T>,
-): PCancelable<R | null> {
+) {
     return new PCancelable<R>(
         async (resolve, reject, onCancel) => {
             if (list.length === 0) reject(new Error("List is empty"));

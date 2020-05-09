@@ -38,7 +38,7 @@ export function reactorVote<T>(
     list: readonly T[],
     userFilter?: UserFilter,
     options?: VoteOptions<T>
-): PCancelable<VoteResult<T> | null> {
+) {
     let opts = Object.assign({}, defaultOptions, options);
 
     const votes = new Array<User[]>(list.length);
