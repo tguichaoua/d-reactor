@@ -1,7 +1,7 @@
 {
     "name": "discord-reactor",
     "version": "0.0.0",
-    "description": "Plenty of functions to make reaction-base menu with discord.js",
+    "description": "Functions to make reaction-base menu with discord.js",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
