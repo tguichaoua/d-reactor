@@ -1,7 +1,6 @@
 import { TextBasedChannelFields, User } from "discord.js";
 import { reactorList, ListOptions } from "./reactorList";
 import { UserFilter } from "./reactor";
-import PCancelable from "p-cancelable";
 
 interface VoteElement<T> {
     /** An element of the list. */
@@ -11,7 +10,7 @@ interface VoteElement<T> {
 }
 
 export interface VoteResult<T> {
-    /** An array that contains all element with their number of vote ordered by vote count (most voted first). */
+    /** An array that contains all element with user that vote for them ordered by vote count (most voted first). */
     ordered: VoteElement<T>[];
     /** An array of elements that received the most of vote. */
     top: VoteElement<T>[];
