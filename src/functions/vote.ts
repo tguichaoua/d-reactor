@@ -3,6 +3,7 @@ import { UserFilter } from "../internal/reactor";
 import { reactorVote, VoteOptions } from "../internal/reactorVote";
 
 /**
+ * Create a reaction-based vote.
  * The returned promise is resolved after the duration.
  * @param channel - The channel where to post the vote message.
  * @param caption - Message caption.

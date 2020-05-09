@@ -4,7 +4,6 @@ import { reactorList, ListOptions } from "../internal/reactorList";
 /**
  * The returned promise is resolve when all user in `users` vote for the same element.
  * The resolved value is the element that all users choose.
- * The resolved value is null if it can't be determined (eg timeout, `users` or `list` is empty).
  * @param channel - The channel where to post the vote message.
  * @param caption - Message caption.
  * @param users - A list of user that can vote.

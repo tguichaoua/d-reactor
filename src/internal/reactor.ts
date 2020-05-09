@@ -30,7 +30,7 @@ const defaultOptions: Readonly<ReactorOptionsFull> = {
 export function reactor<T>(
     message: Message,
     emojis: readonly EmojiResolvable[],
-    onEnd: (collector: ReactionCollector) => T,
+    onEnd?: (collector: ReactionCollector) => T,
     onCollect?: (params: OnReactionChangedParams) => { value: T } | boolean | void,
     onRemove?: (params: OnReactionChangedParams) => void,
     userFilter?: UserFilter,
@@ -61,6 +61,15 @@ export function reactor<T>(
                 resolve(value);
             }
 
+            function onReject(reason: any) {
+                stop = true;
+                if (timer)
+                    message.client.clearTimeout(timer);
+                collector.stop();
+
+                reject(reason);
+            }
+
 
             collector.on("collect", async (reaction, user) => {
                 if (user.id === message.client.user?.id) return; // don't trigger userFilter & onCollect if the user is the bot
@@ -88,8 +97,12 @@ export function reactor<T>(
                 });
 
             collector.once("end", () => {
-                if (!stop)
-                    onResolve(onEnd(collector));
+                if (!stop) {
+                    if (onEnd)
+                        onResolve(onEnd(collector));
+                    else
+                        onReject(new Error("Cannot resolve this promise."));
+                }
             });
 
 
