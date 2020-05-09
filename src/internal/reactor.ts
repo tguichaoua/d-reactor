@@ -53,7 +53,7 @@ export function reactor<T>(
                 collector.stop();
             });
 
-            function onResolve(value: T) {
+            function doResolve(value: T) {
                 stop = true;
                 if (timer)
                     message.client.clearTimeout(timer);
@@ -64,7 +64,7 @@ export function reactor<T>(
                 resolve(value);
             }
 
-            function onReject(reason: any) {
+            function doReject(reason: any) {
                 stop = true;
                 if (timer)
                     message.client.clearTimeout(timer);
@@ -86,13 +86,9 @@ export function reactor<T>(
                         if (!(action ?? true)) await reaction.users.remove(user).catch(() => { });
                     }
                     else
-                        onResolve(action.value);
+                        doResolve(action.value);
                 }
             });
-
-            // collector.on("dispose", (reaction, user) => {
-            //     console.log(`Dispose ${reaction.emoji.name} by ${user.username}`);
-            // });
 
             if (onRemove)
                 collector.on("remove", (reaction, user) => {
@@ -103,9 +99,9 @@ export function reactor<T>(
                 console.log("end");
                 if (!stop) {
                     if (onEnd)
-                        onResolve(onEnd(collector));
+                        doResolve(onEnd(collector));
                     else
-                        onReject(new Error("Cannot resolve this promise."));
+                        doReject(new Error("Cannot resolve this promise."));
                 }
             });
 
