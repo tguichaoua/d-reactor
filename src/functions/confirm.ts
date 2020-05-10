@@ -1,6 +1,6 @@
-import { Message, TextBasedChannelFields } from "discord.js";
-import emoji from "../misc/emoji.json";
-import { ReactorOptions, reactor, UserFilter } from "../internal/reactor";
+import { TextBasedChannelFields } from "discord.js";
+import emojis from "../misc/emojis.json";
+import { ReactorOptions, UserFilter } from "../internal/reactor";
 import { reactorMessage } from "../internal/reactorMessage";
 
 /**
@@ -15,9 +15,9 @@ export function confirm(channel: TextBasedChannelFields, caption: string, userFi
     return reactorMessage<boolean>(
         channel,
         caption,
-        [emoji.checkMark, emoji.crossMark],
+        [emojis.checkMark, emojis.crossMark],
         () => false,
-        ({ reaction }) => { return { value: reaction.emoji.name === emoji.checkMark } },
+        ({ reaction }) => { return { value: reaction.emoji.name === emojis.checkMark } },
         undefined,
         userFilter,
         options

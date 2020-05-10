@@ -36,22 +36,21 @@ export function reactor<T>(
     userFilter?: UserFilter,
     options?: ReactorOptions
 ) {
-    const opts = Object.assign({}, defaultOptions, options);
-    let stop = false;
-
-    const collector = message.createReactionCollector(
-        (reaction: MessageReaction, _: User) => emojis.includes(reaction.emoji.name),
-        {
-            dispose: true,
-        }
-    );
-
     return new PCancelable<T>(
         async (resolve, reject, onCancel) => {
-            onCancel(() => {
-                console.log("onCancel");
-                collector.stop();
-            });
+            onCancel.shouldReject = false;
+
+            const opts = Object.assign({}, defaultOptions, options);
+            let stop = false;
+
+            const collector = message.createReactionCollector(
+                (reaction: MessageReaction, _: User) => emojis.includes(reaction.emoji.name),
+                {
+                    dispose: true,
+                }
+            );
+
+            onCancel(() => collector.stop());
 
             function doResolve(value: T) {
                 stop = true;
@@ -64,7 +63,7 @@ export function reactor<T>(
                 resolve(value);
             }
 
-            function doReject(reason: any) {
+            async function doReject(reason: any) {
                 stop = true;
                 if (timer)
                     message.client.clearTimeout(timer);
@@ -73,9 +72,8 @@ export function reactor<T>(
                 reject(reason);
             }
 
-
             collector.on("collect", async (reaction, user) => {
-                if (user.id === message.client.user?.id) return; // don't trigger userFilter & onCollect if the user is the bot
+                if (user.id === message.client.user?.id) return; // don't trigger userFilter nor onCollect if the user is the bot
 
                 if (userFilter && !userFilter(user))
                     await reaction.users.remove(user).catch(() => { });
@@ -83,6 +81,7 @@ export function reactor<T>(
                 if (onCollect) {
                     const action = onCollect({ collector, reaction, user });
                     if (typeof action === "boolean" || !action) {
+                        // if action is false then remove the reaction.
                         if (!(action ?? true)) await reaction.users.remove(user).catch(() => { });
                     }
                     else
@@ -90,13 +89,13 @@ export function reactor<T>(
                 }
             });
 
-            if (onRemove)
+            if (onRemove) {
                 collector.on("remove", (reaction, user) => {
                     onRemove({ collector, reaction, user });
                 });
+            }
 
             collector.once("end", () => {
-                console.log("end");
                 if (!stop) {
                     if (onEnd)
                         doResolve(onEnd(collector));
@@ -104,7 +103,6 @@ export function reactor<T>(
                         doReject(new Error("Cannot resolve this promise."));
                 }
             });
-
 
             for (const e of emojis) {
                 await message.react(e).catch(() => { });

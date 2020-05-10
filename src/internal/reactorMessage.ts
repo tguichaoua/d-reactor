@@ -18,6 +18,7 @@ export function reactorMessage<T>(
 ) {
     return new PCancelable<T>(
         async (resolve, reject, onCancel) => {
+            onCancel.shouldReject = false;
             try {
                 const message = await channel.send(caption);
                 const promise = reactor<T>(
@@ -29,8 +30,8 @@ export function reactorMessage<T>(
                     userFilter,
                     options
                 );
-                onCancel(promise.cancel);
-                resolve(promise);
+                onCancel(() => promise.cancel());
+                resolve(await promise);
             } catch (error) {
                 reject(error);
             }

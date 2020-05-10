@@ -18,6 +18,7 @@ export function reactorList<T, R>(
 ) {
     return new PCancelable<R>(
         async (resolve, reject, onCancel) => {
+            onCancel.shouldReject = false;
             if (list.length === 0) reject(new Error("List is empty"));
             try {
                 const { message, emojis } = await sendListMessage(channel, caption, list, options);
@@ -36,8 +37,8 @@ export function reactorList<T, R>(
                     options
                 );
 
-                onCancel(promise.cancel);
-                resolve(promise);
+                onCancel(() => promise.cancel());
+                resolve(await promise);
             } catch (error) {
                 reject(error);
             }
