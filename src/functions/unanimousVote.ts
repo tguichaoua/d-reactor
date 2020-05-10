@@ -4,7 +4,7 @@ import { makeCancellable } from "../misc/makeCancellable";
 
 /**
  * The returned promise is resolve when all user in `users` vote for the same element.
- * The resolved value is the element that all users choose.
+ * The resolved value is the element that all users choose, or null if the promise is canceled.
  * @param channel - Channel where the message is post.
  * @param caption - Message caption.
  * @param users - A list of user that can vote.
@@ -18,18 +18,18 @@ export function unanimousVote<T>(
     list: readonly T[],
     options?: ListOptions<T>
 ) {
-    return makeCancellable<T>(
+    return makeCancellable(
         onCancel => {
             onCancel.shouldReject = false;
 
             if (users.length === 0)
                 throw new Error("users list must not be empty.");
 
-            const promise = reactorList<T, T>(
+            const promise = reactorList<T, T | null>(
                 channel,
                 caption,
                 list,
-                undefined,
+                () => null,
                 ({ reaction, index }) => {
                     if (users.every(u => reaction.users.cache.has(u.id)))
                         return { value: list[index] };
