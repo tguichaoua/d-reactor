@@ -1,3 +1,3 @@
 ## Versions
 
-- <a href="/v0">V0.x</a>
+- <a href="/v0/index.html">V0.x</a>
