@@ -1,5 +1,5 @@
 {
-    "name": "discord-reactor",
+    "name": "d-reactor",
     "version": "0.0.0",
     "description": "Functions to make reaction-base menu with discord.js",
     "main": "dist/index.js",
@@ -15,7 +15,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/baanloh/discord-reactor.git"
+        "url": "git+https://github.com/baanloh/d-reactor.git"
     },
     "keywords": [
         "discord.js",
@@ -26,9 +26,9 @@
     "author": "Tristan Guichaoua",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/baanloh/discord-reactor/issues"
+        "url": "https://github.com/baanloh/d-reactor/issues"
     },
-    "homepage": "https://github.com/baanloh/discord-reactor#readme",
+    "homepage": "https://github.com/baanloh/d-reactor#readme",
     "devDependencies": {
         "@types/ws": "^7.2.4",
         "typedoc": "^0.17.6",
