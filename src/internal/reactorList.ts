@@ -1,7 +1,7 @@
 import { TextBasedChannelFields, ReactionCollector } from "discord.js";
 import { ReactorOptions, reactor, OnReactionChangedParams, UserFilter } from "./reactor";
 import { sendListMessage, MessageListOptions } from "./sendListMessage";
-import PCancelable from "p-cancelable";
+import { makeCancellable } from "../misc/makeCancellable";
 
 export type ListOptions<T> = ReactorOptions & MessageListOptions<T>;
 
@@ -16,32 +16,31 @@ export function reactorList<T, R>(
     userFilter?: UserFilter,
     options?: ListOptions<T>,
 ) {
-    return new PCancelable<R>(
-        async (resolve, reject, onCancel) => {
+    return makeCancellable<R>(
+        async onCancel => {
             onCancel.shouldReject = false;
-            if (list.length === 0) reject(new Error("List is empty"));
-            try {
-                const { message, emojis } = await sendListMessage(channel, caption, list, options);
 
-                const promise = reactor<R>(
-                    message,
-                    emojis,
-                    onEnd,
-                    onCollect ?
-                        (params) => onCollect(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) }))
-                        : undefined,
-                    onRemove ?
-                        (params) => onRemove(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) }))
-                        : undefined,
-                    userFilter,
-                    options
-                );
+            if (list.length === 0)
+                throw new Error("List must not be empty.");
 
-                onCancel(() => promise.cancel());
-                resolve(await promise);
-            } catch (error) {
-                reject(error);
-            }
+            const { message, emojis } = await sendListMessage(channel, caption, list, options);
+
+            const promise = reactor<R>(
+                message,
+                emojis,
+                onEnd,
+                onCollect ?
+                    (params) => onCollect(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) }))
+                    : undefined,
+                onRemove ?
+                    (params) => onRemove(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) }))
+                    : undefined,
+                userFilter,
+                options
+            );
+
+            onCancel(() => promise.cancel());
+            return promise;
         }
     );
 }

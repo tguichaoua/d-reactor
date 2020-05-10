@@ -1,6 +1,7 @@
 import PCancelable from "p-cancelable";
 import { TextBasedChannelFields, EmojiResolvable, ReactionCollector } from "discord.js";
 import { OnReactionChangedParams, UserFilter, ReactorOptions, reactor } from "./reactor";
+import { makeCancellable } from "../misc/makeCancellable";
 
 
 /** Send message on the channel then use it for reactor.
@@ -16,25 +17,24 @@ export function reactorMessage<T>(
     userFilter?: UserFilter,
     options?: ReactorOptions
 ) {
-    return new PCancelable<T>(
-        async (resolve, reject, onCancel) => {
+    return makeCancellable<T>(
+        async onCancel => {
             onCancel.shouldReject = false;
-            try {
-                const message = await channel.send(caption);
-                const promise = reactor<T>(
-                    message,
-                    emojis,
-                    onEnd,
-                    onCollect,
-                    onRemove,
-                    userFilter,
-                    options
-                );
-                onCancel(() => promise.cancel());
-                resolve(await promise);
-            } catch (error) {
-                reject(error);
-            }
+
+            const message = await channel.send(caption);
+
+            const promise = reactor<T>(
+                message,
+                emojis,
+                onEnd,
+                onCollect,
+                onRemove,
+                userFilter,
+                options
+            );
+            
+            onCancel(() => promise.cancel());
+            return promise;
         }
     );
 }

@@ -1,5 +1,6 @@
 import { TextBasedChannelFields, User } from "discord.js";
 import { reactorList, ListOptions } from "../internal/reactorList";
+import { makeCancellable } from "../misc/makeCancellable";
 
 /**
  * The returned promise is resolve when all user in `users` vote for the same element.
@@ -17,18 +18,29 @@ export function unanimousVote<T>(
     list: readonly T[],
     options?: ListOptions<T>
 ) {
-    if (users.length === 0) return Promise.resolve(null);
-    return reactorList<T, T>(
-        channel,
-        caption,
-        list,
-        undefined,
-        ({ reaction, index }) => {
-            if (users.every(u => reaction.users.cache.has(u.id)))
-                return { value: list[index] };
-        },
-        undefined,
-        user => users.some(u => u.id === user.id),
-        options
-    )
+    return makeCancellable<T>(
+        onCancel => {
+            onCancel.shouldReject = false;
+
+            if (users.length === 0)
+                throw new Error("users list must not be empty.");
+
+            const promise = reactorList<T, T>(
+                channel,
+                caption,
+                list,
+                undefined,
+                ({ reaction, index }) => {
+                    if (users.every(u => reaction.users.cache.has(u.id)))
+                        return { value: list[index] };
+                },
+                undefined,
+                user => users.some(u => u.id === user.id),
+                options
+            );
+
+            onCancel(() => promise.cancel());
+            return promise;
+        }
+    );
 }
