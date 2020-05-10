@@ -4,7 +4,7 @@ import PCancelable from "p-cancelable";
 interface ReactorOptionsFull {
     /** If set, the promise is resolved after this amount of time (in milliseconds). */
     duration?: number,
-    /** If set to true, the message is deleted just before the promise is resolved. (default is false) */
+    /** If set to true, the message is deleted just before the promise is resolved. (default is true) */
     deleteMessage: boolean,
 }
 
@@ -20,7 +20,7 @@ export interface OnReactionChangedParams {
 
 /** @internal */
 const defaultOptions: Readonly<ReactorOptionsFull> = {
-    deleteMessage: false,
+    deleteMessage: true,
 }
 
 /** @internal
