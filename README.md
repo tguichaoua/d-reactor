@@ -13,44 +13,52 @@ discord-reactor is a npm package that must be used with <a href="https://www.npm
 
 ```typescript
 import Discord, { Message } from "discord.js";
-import { confirm, vote } from "discord-reactor";
+import { confirm, vote, PCancelable } from "discord-reactor";
 
 const client = new Discord.Client();
+
+let lastPromise: PCancelable<any> | undefined;
 
 client.on("ready", () => console.log("READY !"));
 
 client.on("message", async msg => {
+   if (msg.content.startsWith("!cancel")) {
+      if (lastPromise) {
+         lastPromise.cancel();
+      }
+   }
    if (msg.content.startsWith("!vote")) {
       await makeVote(msg);
    }
 });
 
 async function makeVote(message: Message) {
-   if (! await confirm(message.channel, "Are you sure ?", u => u.id === message.author.id, { deleteMessage: true })) {
+   if (! await confirm(message.channel, "Are you sure ?", u => u.id === message.author.id)) {
       await message.channel.send("Action cancelled !");
       return;
    }
 
-   const result = await vote(
+   const p = vote(
       message.channel,
       "Which is your favourite ?",
       ["Cat", "Dog", "Mouse"],
       1000 * 15,
       undefined,
       {
-         deleteMessage: true,
          emojis: ["🐱", "🐶", "🐭"],
          votePerUser: 1,
       }
    );
 
-   const bests = result.top.map(o => o.value);
+   lastPromise = p;
+
+   const bests = (await p).top.map(o => o.value);
+   lastPromise = undefined;
 
    await message.channel.send(`Your favourite ${bests.length === 1 ? "is" : "are"} ${bests.join(", ")}`);
 }
 
 client.login(process.env.TOKEN);
-
 
 ```
 
