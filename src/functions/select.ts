@@ -1,5 +1,6 @@
 import { TextBasedChannelFields, User } from "discord.js";
 import { ListOptions, reactorList } from "../internal/reactorList";
+import emojis from "../misc/emojis.json";
 
 interface SelectOptionsFull {
     /** Define the minimum number of element that can be selected. 
@@ -19,6 +20,9 @@ export function select<T>(
     count: number,
     options?: SelectOptions<T>
 ) {
+    if (options?.minimum && options.minimum >= count)
+        throw new Error("options.minimum must be lower than count.");
+
     const selected = new Set<T>();
     return reactorList<T, T[]>(
         channel,
@@ -33,6 +37,16 @@ export function select<T>(
             selected.delete(list[index]);
         },
         u => u.id === user.id,
-        options
+        options,
+        options?.minimum ?
+            [{
+                emoji: emojis.checkMark,
+                action() {
+                    if (options.minimum && selected.size >= options.minimum) {
+                        return { value: Array.from(selected) };
+                    }
+                }
+            }] :
+            []
     );
 }
