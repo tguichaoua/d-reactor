@@ -7,7 +7,7 @@ discord-reactor is a npm package that must be used with <a href="https://www.npm
 `npm i discord-reactor`
 
 ## Documentation
-<a href="https://baanloh.github.io/d-reactor/v0/index.html">Docs</a>
+<a href="https://baanloh.github.io/d-reactor/v1/index.html">Docs</a>
 
 ## Example
 
