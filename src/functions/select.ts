@@ -30,8 +30,8 @@ export function select<T>(
     count: number,
     options?: SelectOptions<T>
 ) {
-    if (options?.minimum && options.minimum >= count)
-        throw new Error("options.minimum must be lower than count.");
+    if (count > list.length) throw new Error("count cannot be greater that list.length.");
+    if (options?.minimum && options.minimum >= count) throw new Error("options.minimum must be lower than count.");
 
     const selected = new Set<T>();
     return reactorList<T, T[]>(
