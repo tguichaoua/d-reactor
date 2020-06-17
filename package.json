@@ -5,13 +5,12 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "scripts": {
+        "v": "npm --no-git-tag-version version",
         "docs": "typedoc ./src/",
         "build": "tsc",
         "clean": "rm -rf ./dist",
         "rebuild": "npm run clean && npm run build",
-        "prepublishOnly": "npm run rebuild",
-        "prestart": "npm run build",
-        "start": "node dist/index.js"
+        "prepublishOnly": "npm run rebuild"
     },
     "repository": {
         "type": "git",
@@ -30,13 +29,16 @@
     },
     "homepage": "https://github.com/baanloh/d-reactor#readme",
     "devDependencies": {
+        "discord.js": "^12.2.0",
         "@types/ws": "^7.2.4",
+        "@types/node": "^13.13.4",
         "typedoc": "^0.17.6",
         "typescript": "^3.8.3"
     },
     "dependencies": {
-        "@types/node": "^13.13.4",
-        "discord.js": "^12.2.0",
         "p-cancelable": "^2.0.0"
+    },
+    "peerDependencies": {
+        "discord.js": "^12.2.0"
     }
 }
