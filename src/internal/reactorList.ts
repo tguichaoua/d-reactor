@@ -3,9 +3,9 @@ import { ReactorOptions, reactor, OnReactionChangedParams, UserFilter } from "./
 import { sendListMessage, MessageListOptions } from "./sendListMessage";
 import { makeCancellable } from "../misc/makeCancellable";
 
-export interface Button {
+export interface Button<R> {
     emoji: EmojiResolvable;
-    action: () => void;
+    action: () => { value: R } | void;
 }
 
 export type ListOptions<T> = ReactorOptions & MessageListOptions<T>;
@@ -20,7 +20,7 @@ export function reactorList<T, R>(
     onRemove?: (params: OnReactionChangedParams & { readonly index: number }) => void,
     userFilter?: UserFilter,
     options?: ListOptions<T>,
-    buttons: Button[] = [],
+    buttons: Button<R>[] = [],
 ) {
     return makeCancellable<R>(
         async onCancel => {
@@ -39,8 +39,7 @@ export function reactorList<T, R>(
                 (params) => {
                     const btnIndex = buttonEmojis.indexOf(params.reaction.emoji.name);
                     if (btnIndex !== -1) {
-                        buttons[btnIndex].action();
-                        return false;
+                        return buttons[btnIndex].action() ?? false;
                     } else {
                         return onCollect ?
                             onCollect(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) }))
