@@ -5,13 +5,23 @@ import emojis from "../misc/emojis.json";
 interface SelectOptionsFull {
     /** Define the minimum number of element that can be selected. 
      * Must be lower that `count`. 
-     * If definied, add a ✅ button to confirm the selection if the minimum quota is respected.
+     * If definied, add a ✅ button to submit the selection if the minimum quota is respected.
      */
     minimum: number;
 }
 
 export type SelectOptions<T> = ListOptions<T> & Partial<SelectOptionsFull>;
 
+/**
+ * Resolved when the user select as many item as `count`.
+ * If `options.minimum` is defined, the promise is resolved if user has selected at least this number of item and click on ✅.
+ * @param channel - Channel where the message is post.
+ * @param caption - Message caption.
+ * @param user - The user that can select.
+ * @param list - A list of element.
+ * @param count - The number of element that user must select to auto submit.
+ * @param options 
+ */
 export function select<T>(
     channel: TextBasedChannelFields,
     caption: string,
@@ -42,7 +52,7 @@ export function select<T>(
             [{
                 emoji: emojis.checkMark,
                 action() {
-                    if (options.minimum && selected.size >= options.minimum) {
+                    if (options?.minimum && selected.size >= options.minimum) {
                         return { value: Array.from(selected) };
                     }
                 }
