@@ -1,7 +1,12 @@
-import { TextBasedChannelFields, ReactionCollector } from "discord.js";
+import { TextBasedChannelFields, ReactionCollector, EmojiResolvable } from "discord.js";
 import { ReactorOptions, reactor, OnReactionChangedParams, UserFilter } from "./reactor";
 import { sendListMessage, MessageListOptions } from "./sendListMessage";
 import { makeCancellable } from "../misc/makeCancellable";
+
+export interface Button {
+    emoji: EmojiResolvable;
+    action: () => void;
+}
 
 export type ListOptions<T> = ReactorOptions & MessageListOptions<T>;
 
@@ -15,6 +20,7 @@ export function reactorList<T, R>(
     onRemove?: (params: OnReactionChangedParams & { readonly index: number }) => void,
     userFilter?: UserFilter,
     options?: ListOptions<T>,
+    buttons: Button[] = [],
 ) {
     return makeCancellable<R>(
         async onCancel => {
@@ -24,14 +30,23 @@ export function reactorList<T, R>(
                 throw new Error("List must not be empty.");
 
             const { message, emojis } = await sendListMessage(channel, caption, list, options);
+            const buttonEmojis = buttons.map(b => b.emoji);
 
             const promise = reactor<R>(
                 message,
-                emojis,
+                [...emojis, ...buttonEmojis],
                 onEnd,
-                onCollect ?
-                    (params) => onCollect(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) }))
-                    : undefined,
+                (params) => {
+                    const btnIndex = buttonEmojis.indexOf(params.reaction.emoji.name);
+                    if (btnIndex !== -1) {
+                        buttons[btnIndex].action();
+                        return false;
+                    } else {
+                        return onCollect ?
+                            onCollect(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) }))
+                            : undefined
+                    }
+                },
                 onRemove ?
                     (params) => onRemove(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) }))
                     : undefined,
