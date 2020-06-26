@@ -39,6 +39,7 @@ export function reactor<T>(
     return new PCancelable<T>(
         async (resolve, reject, onCancel) => {
             onCancel.shouldReject = false;
+            let timer: NodeJS.Timer | undefined = undefined;
 
             const opts = Object.assign({}, defaultOptions, options);
             let stop = false;
@@ -109,7 +110,6 @@ export function reactor<T>(
                 if (stop) break;
             }
 
-            let timer: NodeJS.Timer;
             if (!stop && opts.duration)
                 timer = message.client.setTimeout(() => collector.stop(), opts.duration);
         }
