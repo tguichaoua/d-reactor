@@ -9,7 +9,6 @@ interface ReactorOptionsFull {
 }
 
 export type ReactorOptions = Partial<ReactorOptionsFull>;
-export type UserFilter = (user: User) => boolean;
 
 /** @internal */
 export interface OnReactionChangedParams {
