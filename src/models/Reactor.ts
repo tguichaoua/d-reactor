@@ -17,6 +17,8 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
     private _cancelled = false;
     private _fulfilled = false;
 
+    public readonly value: Promise<R | C>;
+
     /** @internal */
     constructor(
         public readonly message: Promise<Message>,
@@ -103,6 +105,8 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                 }
             )
         );
+
+        this.value = this._promise.then(r => r.value);
     }
 
     then<TResult1 = ResolvedReactor<R, C>, TResult2 = never>(
