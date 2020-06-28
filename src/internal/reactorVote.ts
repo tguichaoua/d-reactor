@@ -1,81 +1,72 @@
 import { TextBasedChannelFields, User } from "discord.js";
 import { reactorList, ListOptions } from "./reactorList";
-import { UserFilter } from "./reactor";
+import { VoteResult, VoteElement, makeVoteResult } from "../models/VoteResult";
+import { Reactor } from "../models/Reactor";
+import { Predicate } from "../models/Predicate";
 
-interface VoteElement<T> {
-    /** An element of the list. */
-    value: T;
-    /** Users that vote for this element. */
-    users: User[];
-}
-
-export interface VoteResult<T> {
-    /** An array that contains all element with user that vote for them ordered by vote count (most voted first). */
-    ordered: VoteElement<T>[];
-    /** An array of elements that received the most of vote. */
-    top: VoteElement<T>[];
-}
-
-interface VoteOptionsFull {
+export type VoteOptions<T> = ListOptions<T> & {
     /** Determine the number maximal of vote a user can do.
      * Negative or null number are considered as `unlimited`.
      * Default is `unlimited`.
      */
     votePerUser?: number
-}
-
-export type VoteOptions<T> = ListOptions<T> & Partial<VoteOptionsFull>;
-
-/** @internal */
-const defaultOptions: VoteOptionsFull = {
-}
+};
 
 /** @internal */
 export function reactorVote<T>(
     channel: TextBasedChannelFields,
     caption: string,
     list: readonly T[],
-    userFilter?: UserFilter,
-    options?: VoteOptions<T>
-) {
-    let opts = Object.assign({}, defaultOptions, options);
+    userFilter: Predicate<User> | undefined,
+    options: VoteOptions<T>
+): Reactor<VoteResult<T>>;
 
+/** @internal */
+export function reactorVote<T, R>(
+    channel: TextBasedChannelFields,
+    caption: string,
+    list: readonly T[],
+    userFilter: Predicate<User> | undefined,
+    options: VoteOptions<T>,
+    onUpdate: (element: VoteElement<T>) => { value: R } | void,
+): Reactor<R, VoteResult<T>>;
+
+/** @internal */
+export function reactorVote<T, R>(
+    channel: TextBasedChannelFields,
+    caption: string,
+    list: readonly T[],
+    userFilter: Predicate<User> | undefined,
+    options: VoteOptions<T>,
+    onUpdate?: (element: VoteElement<T>) => { value: R } | void,
+) {
     const votes = new Array<User[]>(list.length);
     for (let i = 0; i < list.length; i++)
         votes[i] = new Array<User>();
 
-    return reactorList<T, VoteResult<T>>(
+    return reactorList<T, VoteResult<T> | R, VoteResult<T>>(
         channel,
         caption,
         list,
-        () => {
-            const ordered = list
-                .map((value, index) => { return { value, users: votes[index] } })
-                .sort((a, b) => b.users.length - a.users.length);
-            let topVoteCount = ordered[0].users.length;
-            const top: VoteElement<T>[] = [];
-            for (const e of ordered)
-                if (e.users.length === topVoteCount)
-                    top.push(e);
-                else
-                    break;
-
-            return { ordered, top };
-        },
+        () => makeVoteResult(list.map((value, index) => { return { value, users: votes[index] } })),
+        () => makeVoteResult(list.map((value, index) => { return { value, users: votes[index] } })),
         ({ user, index }) => {
-            let canVote = true;
-            if (opts.votePerUser && opts.votePerUser > 0)
-                canVote = votes.filter(users => users.includes(user)).length < opts.votePerUser;
+            if (options.votePerUser &&
+                options.votePerUser > 0 &&
+                votes.filter(users => users.includes(user)).length >= options.votePerUser
+            )
+                return false;
+
             const users = votes[index];
-            if (canVote && !users.includes(user))
+            if (!users.includes(user)) {
                 users.push(user);
-            return canVote;
+                if (onUpdate) return onUpdate({ value: list[index], users })
+            }
         },
         ({ user, index }) => {
             const users = votes[index];
             const i = users.indexOf(user);
-            if (i !== -1)
-                users.splice(i, 1);
+            if (i !== -1) users.splice(i, 1);
         },
         userFilter,
         options
