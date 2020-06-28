@@ -1,6 +1,6 @@
 import { User } from "discord.js";
 
-interface VoteElement<T> {
+export interface VoteElement<T> {
     /** An element of the list. */
     readonly value: T;
     /** Users that vote for this element. */
