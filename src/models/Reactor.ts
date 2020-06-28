@@ -23,8 +23,8 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
     constructor(
         public readonly message: Promise<Message>,
         emojis: readonly EmojiResolvable[],
-        onEnd: (collector: ReactionCollector) => R,
         onCancel: (collector: ReactionCollector) => C,
+        onEnd?: (collector: ReactionCollector) => R,
         onCollect?: (params: OnReactionChangedParams) => { value: R } | boolean | void,
         onRemove?: (params: OnReactionChangedParams) => void,
         userFilter?: Predicate<User>,
@@ -92,7 +92,8 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                     collector.once("end", () => {
                         if (this._fulfilled) return;
                         if (this._cancelled) doResolve({ wasCancelled: true, value: onCancel(collector) });
-                        else doResolve({ wasCancelled: false, value: onEnd(collector) });
+                        else if (onEnd) doResolve({ wasCancelled: false, value: onEnd(collector) });
+                        else doReject(new Error("Cannot resolve this reactor."));
                     });
 
                     for (const e of emojis) {
