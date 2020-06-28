@@ -1,6 +1,6 @@
-import { TextBasedChannelFields } from "discord.js";
-import { UserFilter } from "../internal/reactor";
+import { TextBasedChannelFields, User } from "discord.js";
 import { reactorVote, VoteOptions } from "../internal/reactorVote";
+import { Predicate } from "../models/Predicate";
 
 /**
  * Create a reaction-based vote.
@@ -17,15 +17,14 @@ export function vote<T>(
     caption: string,
     list: readonly T[],
     duration: number,
-    userFilter?: UserFilter,
-    options?: VoteOptions<T>
+    userFilter?: Predicate<User>,
+    options?: Omit<VoteOptions<T>, "duration">,
 ) {
-    options = Object.assign({}, options, { duration });
     return reactorVote<T>(
         channel,
         caption,
         list,
         userFilter,
-        options
+        { ...options, ...{ duration } },
     );
 }
