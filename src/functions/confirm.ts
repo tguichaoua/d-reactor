@@ -1,8 +1,7 @@
 import { TextBasedChannelFields, User } from "discord.js";
-import emojis from "../misc/emojis.json";
-import { ReactorOptions } from "../internal/reactor";
 import { Reactor } from "../models/Reactor";
 import { Predicate } from "../models/Predicate";
+import emojis from "../misc/emojis.json";
 
 /**
  * The returned promised is resolve when user click on one of the added reaction.

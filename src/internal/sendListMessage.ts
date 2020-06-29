@@ -1,4 +1,4 @@
-import { TextBasedChannelFields, EmojiResolvable } from "discord.js";
+import { TextBasedChannelFields } from "discord.js";
 import indexed_emojis from "../misc/indexed-emojis.json";
 import { MessageListOptions } from "../models/options/MessageListOptions";
 

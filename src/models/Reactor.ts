@@ -4,7 +4,7 @@ import { Predicate } from "./Predicate";
 import { ReactorOptions } from "./options/ReactorOptions";
 
 /** @internal */
-interface OnReactionChangedParams {
+export interface OnReactionChangedParams {
     readonly collector: ReactionCollector;
     readonly reaction: MessageReaction;
     readonly user: User;

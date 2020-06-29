@@ -1,9 +1,9 @@
 import { TextBasedChannelFields, EmojiResolvable, User } from "discord.js";
-import { ReactorOptions, OnReactionChangedParams } from "./reactor";
 import { makeListMessage } from "./sendListMessage";
-import { Reactor, OnEndCallback } from "../models/Reactor";
+import { Reactor, OnEndCallback, OnReactionChangedParams } from "../models/Reactor";
 import { MessageListOptions } from "../models/options/MessageListOptions";
 import { Predicate } from "../models/Predicate";
+import { ReactorOptions } from "../models/options/ReactorOptions";
 
 export interface ListButton<R> {
     emoji: EmojiResolvable;
