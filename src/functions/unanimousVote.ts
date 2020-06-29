@@ -3,9 +3,14 @@ import { ListOptions } from "../internal/reactorList";
 import { reactorVote } from "../internal/reactorVote";
 
 /**
- * The returned promise is resolve when all user in `users` vote for the same element.
- * The resolved value is the element that all users choose, or null if the promise is canceled.
- * @param channel - Channel where the message is post.
+ * Send a message with the caption and elements in the list.
+ * Fulfilled when all user in `users` select the same element.
+ * 
+ * Resolved value:
+ * - `fulfilled`: The selected element
+ * - `cancelled`: A `VoteResult` that represent the current state of vote when it was cancelled.
+ * 
+ * @param channel - Channel where the message is posted.
  * @param caption - Message caption.
  * @param users - A list of user that can vote.
  * @param list - A list of element.

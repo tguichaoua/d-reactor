@@ -1,6 +1,5 @@
 import { Message } from "discord.js";
 
-/** @internal */
 export type PartialResolvedReactor<Resolved, Cancelled = Resolved> =
     {
         status: "fulfilled";

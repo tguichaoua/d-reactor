@@ -5,9 +5,14 @@ import { ReactorOptions } from "../models/options/ReactorOptions";
 import emojis from "../misc/emojis.json";
 
 /**
- * The returned promised is resolve when user click on one of the added reaction.
- * The resolved value is true if the user click on ✅, false otherwise.
- * @param channel Channel where the message is post.
+ * Send a message with the caption.
+ * Fulfilled when a user click on ✅ or ❌.
+ * 
+ * Resolved value:
+ * - `fulfilled`: `true` if user click on ✅, `false` if click on ❌
+ * - `cancelled`: `false`
+ * 
+ * @param channel Channel where the message is posted.
  * @param caption Message caption.
  * @param userFilter Determines if a user is allow to react.
  * @param options 

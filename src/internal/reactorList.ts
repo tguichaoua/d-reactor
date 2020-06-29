@@ -5,6 +5,7 @@ import { MessageListOptions } from "../models/options/MessageListOptions";
 import { Predicate } from "../models/Predicate";
 import { ReactorOptions } from "../models/options/ReactorOptions";
 
+/** @internal */
 export interface ListButton<R> {
     emoji: EmojiResolvable;
     action: () => { value: R } | void;

@@ -10,6 +10,7 @@ export interface OnReactionChangedParams {
     readonly user: User;
 }
 
+/** @internal */
 export type OnEndCallback<C> = ((collector: ReactionCollector) => C) | {
     onCancel: (collector: ReactionCollector) => C,
     onTimeout: (collector: ReactionCollector) => C,

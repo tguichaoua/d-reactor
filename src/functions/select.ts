@@ -13,13 +13,19 @@ interface SelectOptionsFull {
 export type SelectOptions<T> = ListOptions<T> & Partial<SelectOptionsFull>;
 
 /**
- * Resolved when the user select as many item as `count`.
+ * Send a message with the caption and elements in the list.
+ * Resolved as soon as that number of elements to select is reach.
  * If `options.minimum` is defined, the promise is resolved if user has selected at least this number of item and click on ✅.
- * @param channel - Channel where the message is post.
+ * 
+ * Resolved value:
+ * - `fulfilled`: An array with selected elements
+ * - `cancelled`: An array with elements that was selected
+ * 
+ * @param channel - Channel where the message is posted.
  * @param caption - Message caption.
  * @param user - The user that can select.
  * @param list - A list of element.
- * @param count - The number of element that user must select to auto submit.
+ * @param count - The number of element that user must select.
  * @param options 
  */
 export function select<T>(
