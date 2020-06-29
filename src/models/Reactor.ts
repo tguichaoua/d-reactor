@@ -1,5 +1,5 @@
 import { Message, EmojiResolvable, ReactionCollector, MessageReaction, User } from "discord.js";
-import { ResolvedReactor } from "./ResolvedReactor";
+import { ResolvedReactor, PartialResolvedReactor } from "./ResolvedReactor";
 import { Predicate } from "./Predicate";
 import { ReactorOptions } from "./options/ReactorOptions";
 
@@ -58,7 +58,7 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                         collector.stop();
                     }
 
-                    const doResolve = (value: { wasCancelled: true, value: C } | { wasCancelled: false, value: R }) => {
+                    const doResolve = (value: PartialResolvedReactor<R, C>) => {
                         stopCollector();
                         const result: ResolvedReactor<R, C> = Object.assign(value, { message });
                         if (opts.deleteMessage) resolve(message.delete().then(() => result, () => result));
@@ -83,7 +83,7 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                                 if (action === false) await reaction.users.remove(user).catch(() => { });
                             }
                             else
-                                doResolve({ value: action.value, wasCancelled: false });
+                                doResolve({ status: "fulfilled", value: action.value });
                         }
                     });
 
@@ -95,10 +95,10 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
 
                     collector.once("end", () => {
                         if (this._fulfilled) return;
-                        if (typeof onEnd === "function") doResolve({ wasCancelled: true, value: onEnd(collector) });
+                        if (typeof onEnd === "function") doResolve({ status: this._cancelled ? "cancelled" : "timeout", value: onEnd(collector) });
                         else {
-                            if (this._cancelled) doResolve({ wasCancelled: true, value: onEnd.onCancel(collector) });
-                            else doResolve({ wasCancelled: true, value: onEnd.onTimeout(collector) });
+                            if (this._cancelled) doResolve({ status: "cancelled", value: onEnd.onCancel(collector) });
+                            else doResolve({ status: "timeout", value: onEnd.onTimeout(collector) });
                         }
                     });
 

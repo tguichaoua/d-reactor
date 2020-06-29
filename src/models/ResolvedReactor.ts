@@ -1,14 +1,13 @@
 import { Message } from "discord.js";
 
-export type ResolvedReactor<Resolved, Cancelled = Resolved> =
+/** @internal */
+export type PartialResolvedReactor<Resolved, Cancelled = Resolved> =
     {
-        message: Message;
-    } & (
-        {
-            wasCancelled: true;
-            value: Cancelled;
-        } | {
-            wasCancelled: false;
-            value: Resolved;
-        }
-    );
+        status: "fulfilled";
+        value: Resolved;
+    } | {
+        status: "cancelled" | "timeout";
+        value: Cancelled;
+    }
+
+export type ResolvedReactor<R, C = R> = PartialResolvedReactor<R, C> & { message: Message; } 
