@@ -11,40 +11,6 @@ import { reactorVote } from "../internal/reactorVote";
  * @param list - A list of element.
  * @param options
  */
-// export function unanimousVote<T>(
-//     channel: TextBasedChannelFields,
-//     caption: string,
-//     users: readonly User[],
-//     list: readonly T[],
-//     options?: ListOptions<T>
-// ) {
-//     return makeCancellable(
-//         onCancel => {
-//             onCancel.shouldReject = false;
-
-//             if (users.length === 0)
-//                 throw new Error("users list must not be empty.");
-
-//             const promise = reactorList<T, T | null>(
-//                 channel,
-//                 caption,
-//                 list,
-//                 () => null,
-//                 ({ reaction, index }) => {
-//                     if (users.every(u => reaction.users.cache.has(u.id)))
-//                         return { value: list[index] };
-//                 },
-//                 undefined,
-//                 user => users.some(u => u.id === user.id),
-//                 options
-//             );
-
-//             onCancel(() => promise.cancel());
-//             return promise;
-//         }
-//     );
-// }
-
 export function unanimousVote<T>(
     channel: TextBasedChannelFields,
     caption: string,

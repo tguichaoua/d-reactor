@@ -12,19 +12,6 @@ import emojis from "../misc/emojis.json";
  * @param userFilter Determines if a user is allow to react.
  * @param options 
  */
-// export function confirm(channel: TextBasedChannelFields, caption: string, userFilter?: UserFilter, options?: ReactorOptions) {
-//     return reactorMessage<boolean>(
-//         channel,
-//         caption,
-//         [emojis.checkMark, emojis.crossMark],
-//         () => false,
-//         ({ reaction }) => { return { value: reaction.emoji.name === emojis.checkMark } },
-//         undefined,
-//         userFilter,
-//         options
-//     );
-// }
-
 export function confirm(
     channel: TextBasedChannelFields,
     caption: string,
