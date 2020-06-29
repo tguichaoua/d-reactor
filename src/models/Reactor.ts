@@ -16,6 +16,11 @@ export type OnEndCallback<C> = ((collector: ReactionCollector) => C) | {
     onTimeout: (collector: ReactionCollector) => C,
 }
 
+/** @internal */
+export interface ReactorInternalOptions<R, C = R> {
+    fulfilledOnTimeout?: C extends R ? boolean : never;
+}
+
 export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
 
     private readonly _promise: Promise<ResolvedReactor<R, C>>;
@@ -31,6 +36,7 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
         emojis: readonly EmojiResolvable[],
         options: ReactorOptions | undefined,
         onEnd: OnEndCallback<C>,
+        internalOptions: ReactorInternalOptions<R, C>,
         onCollect?: (params: OnReactionChangedParams) => { value: R } | boolean | void,
         onRemove?: (params: OnReactionChangedParams) => void,
         userFilter?: Predicate<User>,
@@ -96,10 +102,17 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
 
                     collector.once("end", () => {
                         if (this._fulfilled) return;
-                        if (typeof onEnd === "function") doResolve({ status: this._cancelled ? "cancelled" : "timeout", value: onEnd(collector) });
+                        if (typeof onEnd === "function") doResolve({
+                            status: this._cancelled ? "cancelled" :
+                                internalOptions.fulfilledOnTimeout ?
+                                    "fulfilled" :
+                                    "timeout",
+                            value: onEnd(collector) as any,
+                        });
                         else {
                             if (this._cancelled) doResolve({ status: "cancelled", value: onEnd.onCancel(collector) });
-                            else doResolve({ status: "timeout", value: onEnd.onTimeout(collector) });
+                            else if (internalOptions.fulfilledOnTimeout) doResolve({ status: "fulfilled", value: onEnd.onTimeout(collector) as any });
+                            else doResolve({ status: "cancelled", value: onEnd.onTimeout(collector) });
                         }
                     });
 

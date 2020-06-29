@@ -28,6 +28,7 @@ export function confirm(
         [emojis.checkMark, emojis.crossMark],
         options,
         () => false,
+        {},
         ({ reaction }) => { return { value: reaction.emoji.name === emojis.checkMark } },
         undefined,
         userFilter,

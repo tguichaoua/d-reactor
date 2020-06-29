@@ -46,6 +46,7 @@ export function select<T>(
         list,
         options,
         () => Array.from(selected),
+        {},
         ({ index }) => {
             selected.add(list[index]);
             if (selected.size >= count) return { value: Array.from(selected) };

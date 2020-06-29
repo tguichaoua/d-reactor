@@ -29,6 +29,7 @@ export function vote<T>(
         caption,
         list,
         { ...options, ...{ duration } },
+        { fulfilledOnTimeout: true },
         userFilter,
     );
 }

@@ -1,7 +1,7 @@
 import { TextBasedChannelFields, User } from "discord.js";
 import { reactorList, ListOptions } from "./reactorList";
 import { VoteResult, VoteElement, makeVoteResult } from "../models/VoteResult";
-import { Reactor } from "../models/Reactor";
+import { Reactor, ReactorInternalOptions } from "../models/Reactor";
 import { Predicate } from "../models/Predicate";
 
 export type VoteOptions<T> = ListOptions<T> & {
@@ -18,6 +18,7 @@ export function reactorVote<T>(
     caption: string,
     list: readonly T[],
     options: VoteOptions<T>,
+    internalOptions: ReactorInternalOptions<VoteResult<T>>,
     userFilter: Predicate<User> | undefined,
 ): Reactor<VoteResult<T>>;
 
@@ -27,6 +28,7 @@ export function reactorVote<T, R>(
     caption: string,
     list: readonly T[],
     options: VoteOptions<T>,
+    internalOptions: ReactorInternalOptions<R, VoteResult<T>>,
     userFilter: Predicate<User> | undefined,
     onUpdate: (element: VoteElement<T>) => { value: R } | void,
 ): Reactor<R, VoteResult<T>>;
@@ -37,6 +39,7 @@ export function reactorVote<T, R>(
     caption: string,
     list: readonly T[],
     options: VoteOptions<T>,
+    internalOptions: ReactorInternalOptions<VoteResult<T> | R, VoteResult<T>>,
     userFilter: Predicate<User> | undefined,
     onUpdate?: (element: VoteElement<T>) => { value: R } | void,
 ) {
@@ -50,6 +53,7 @@ export function reactorVote<T, R>(
         list,
         options,
         () => makeVoteResult(list.map((value, index) => { return { value, users: votes[index] } })),
+        internalOptions,
         ({ user, index }) => {
             if (options.votePerUser &&
                 options.votePerUser > 0 &&
