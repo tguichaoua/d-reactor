@@ -1,5 +1,5 @@
 import { TextBasedChannelFields, EmojiResolvable, User } from "discord.js";
-import { makeListMessage } from "./sendListMessage";
+import { makeListMessage } from "./makeListMessage";
 import { Reactor, OnEndCallback, OnReactionChangedParams } from "../models/Reactor";
 import { MessageListOptions } from "../models/options/MessageListOptions";
 import { Predicate } from "../models/Predicate";
