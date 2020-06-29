@@ -27,7 +27,7 @@ export function unanimousVote<T>(
         channel,
         caption,
         list,
-        { ...options, ...{ votePerUser: undefined } },
+        { ...options, ...{ votePerUser: 1 } },
         user => users.some(u => u.id === user.id),
         e => e.users.length === users.length ? { value: e.value } : undefined,
     );
