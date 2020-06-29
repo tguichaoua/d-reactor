@@ -17,8 +17,8 @@ export function reactorVote<T>(
     channel: TextBasedChannelFields,
     caption: string,
     list: readonly T[],
+    options: VoteOptions<T>,
     userFilter: Predicate<User> | undefined,
-    options: VoteOptions<T>
 ): Reactor<VoteResult<T>>;
 
 /** @internal */
@@ -26,8 +26,8 @@ export function reactorVote<T, R>(
     channel: TextBasedChannelFields,
     caption: string,
     list: readonly T[],
-    userFilter: Predicate<User> | undefined,
     options: VoteOptions<T>,
+    userFilter: Predicate<User> | undefined,
     onUpdate: (element: VoteElement<T>) => { value: R } | void,
 ): Reactor<R, VoteResult<T>>;
 
@@ -36,8 +36,8 @@ export function reactorVote<T, R>(
     channel: TextBasedChannelFields,
     caption: string,
     list: readonly T[],
-    userFilter: Predicate<User> | undefined,
     options: VoteOptions<T>,
+    userFilter: Predicate<User> | undefined,
     onUpdate?: (element: VoteElement<T>) => { value: R } | void,
 ) {
     const votes = new Array<User[]>(list.length);
@@ -48,7 +48,7 @@ export function reactorVote<T, R>(
         channel,
         caption,
         list,
-        () => makeVoteResult(list.map((value, index) => { return { value, users: votes[index] } })),
+        options,
         () => makeVoteResult(list.map((value, index) => { return { value, users: votes[index] } })),
         ({ user, index }) => {
             if (options.votePerUser &&
@@ -69,6 +69,5 @@ export function reactorVote<T, R>(
             if (i !== -1) users.splice(i, 1);
         },
         userFilter,
-        options
     );
 }

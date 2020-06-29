@@ -24,7 +24,7 @@ export function vote<T>(
         channel,
         caption,
         list,
-        userFilter,
         { ...options, ...{ duration } },
+        userFilter,
     );
 }

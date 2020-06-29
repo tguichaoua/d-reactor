@@ -38,6 +38,7 @@ export function select<T>(
         channel,
         caption,
         list,
+        options,
         () => Array.from(selected),
         ({ index }) => {
             selected.add(list[index]);
@@ -47,7 +48,6 @@ export function select<T>(
             selected.delete(list[index]);
         },
         u => u.id === user.id,
-        options,
         options?.minimum ?
             [{
                 emoji: emojis.checkMark,

@@ -1,8 +1,9 @@
-import { TextBasedChannelFields, ReactionCollector, EmojiResolvable } from "discord.js";
-import { ReactorOptions, OnReactionChangedParams, UserFilter } from "./reactor";
+import { TextBasedChannelFields, EmojiResolvable, User } from "discord.js";
+import { ReactorOptions, OnReactionChangedParams } from "./reactor";
 import { makeListMessage } from "./sendListMessage";
-import { Reactor } from "../models/Reactor";
+import { Reactor, OnEndCallback } from "../models/Reactor";
 import { MessageListOptions } from "../models/options/MessageListOptions";
+import { Predicate } from "../models/Predicate";
 
 export interface ListButton<R> {
     emoji: EmojiResolvable;
@@ -64,12 +65,11 @@ export function reactorList<T, R, C = R>(
     channel: TextBasedChannelFields,
     caption: string,
     list: readonly T[],
-    onCancel: (collector: ReactionCollector) => C,
-    onEnd?: (collector: ReactionCollector) => R,
+    options: ListOptions<T> | undefined,
+    onEnd: OnEndCallback<C>,
     onCollect?: (params: OnReactionChangedParams & { readonly index: number }) => { value: R } | boolean | void,
     onRemove?: (params: OnReactionChangedParams & { readonly index: number }) => void,
-    userFilter?: UserFilter,
-    options?: ListOptions<T>,
+    userFilter?: Predicate<User>,
     buttons: ListButton<R>[] = [],
 ) {
 
@@ -79,7 +79,7 @@ export function reactorList<T, R, C = R>(
     return new Reactor<R, C>(
         message,
         [...emojis, ...buttonEmojis],
-        onCancel,
+        options,
         onEnd,
         (params) => {
             const btnIndex = buttonEmojis.indexOf(params.reaction.emoji.name);
@@ -95,6 +95,5 @@ export function reactorList<T, R, C = R>(
             (params) => onRemove(Object.assign(params, { index: emojis.indexOf(params.reaction.emoji.name) }))
             : undefined,
         userFilter,
-        options,
     );
 }

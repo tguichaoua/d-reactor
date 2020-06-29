@@ -34,11 +34,10 @@ export function confirm(
     return new Reactor<boolean, false>(
         channel.send(caption),
         [emojis.checkMark, emojis.crossMark],
+        options,
         () => false,
-        undefined,
         ({ reaction }) => { return { value: reaction.emoji.name === emojis.checkMark } },
         undefined,
         userFilter,
-        options,
     );
 }

@@ -10,6 +10,11 @@ interface OnReactionChangedParams {
     readonly user: User;
 }
 
+export type OnEndCallback<C> = ((collector: ReactionCollector) => C) | {
+    onCancel: (collector: ReactionCollector) => C,
+    onTimeout: (collector: ReactionCollector) => C,
+}
+
 export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
 
     private readonly _promise: Promise<ResolvedReactor<R, C>>;
@@ -23,12 +28,11 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
     constructor(
         public readonly message: Promise<Message>,
         emojis: readonly EmojiResolvable[],
-        onCancel: (collector: ReactionCollector) => C,
-        onEnd?: (collector: ReactionCollector) => R,
+        options: ReactorOptions | undefined,
+        onEnd: OnEndCallback<C>,
         onCollect?: (params: OnReactionChangedParams) => { value: R } | boolean | void,
         onRemove?: (params: OnReactionChangedParams) => void,
         userFilter?: Predicate<User>,
-        options?: ReactorOptions
     ) {
         const opts: ReactorOptions =
         {
@@ -91,9 +95,11 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
 
                     collector.once("end", () => {
                         if (this._fulfilled) return;
-                        if (this._cancelled) doResolve({ wasCancelled: true, value: onCancel(collector) });
-                        else if (onEnd) doResolve({ wasCancelled: false, value: onEnd(collector) });
-                        else doReject(new Error("Cannot resolve this reactor."));
+                        if (typeof onEnd === "function") doResolve({ wasCancelled: true, value: onEnd(collector) });
+                        else {
+                            if (this._cancelled) doResolve({ wasCancelled: true, value: onEnd.onCancel(collector) });
+                            else doResolve({ wasCancelled: true, value: onEnd.onTimeout(collector) });
+                        }
                     });
 
                     for (const e of emojis) {
