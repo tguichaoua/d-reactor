@@ -1,11 +1,16 @@
 import { TextBasedChannelFields, User } from "discord.js";
-import { reactorList, ListOptions } from "../internal/reactorList";
-import { makeCancellable } from "../misc/makeCancellable";
+import { ListOptions } from "../internal/reactorList";
+import { reactorVote } from "../internal/reactorVote";
 
 /**
- * The returned promise is resolve when all user in `users` vote for the same element.
- * The resolved value is the element that all users choose, or null if the promise is canceled.
- * @param channel - Channel where the message is post.
+ * Send a message with the caption and elements in the list.
+ * Fulfilled when all user in `users` select the same element.
+ * 
+ * Resolved value:
+ * - `fulfilled`: The selected element
+ * - `cancelled`: A `VoteResult` that represent the current state of vote when it was cancelled.
+ * 
+ * @param channel - Channel where the message is posted.
  * @param caption - Message caption.
  * @param users - A list of user that can vote.
  * @param list - A list of element.
@@ -18,29 +23,13 @@ export function unanimousVote<T>(
     list: readonly T[],
     options?: ListOptions<T>
 ) {
-    return makeCancellable(
-        onCancel => {
-            onCancel.shouldReject = false;
-
-            if (users.length === 0)
-                throw new Error("users list must not be empty.");
-
-            const promise = reactorList<T, T | null>(
-                channel,
-                caption,
-                list,
-                () => null,
-                ({ reaction, index }) => {
-                    if (users.every(u => reaction.users.cache.has(u.id)))
-                        return { value: list[index] };
-                },
-                undefined,
-                user => users.some(u => u.id === user.id),
-                options
-            );
-
-            onCancel(() => promise.cancel());
-            return promise;
-        }
+    return reactorVote(
+        channel,
+        caption,
+        list,
+        { ...options, ...{ votePerUser: undefined } },
+        {},
+        user => users.some(u => u.id === user.id),
+        e => e.users.length === users.length ? { value: e.value } : undefined,
     );
 }
