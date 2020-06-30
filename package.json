@@ -1,6 +1,6 @@
 {
     "name": "d-reactor",
-    "version": "1.0.1",
+    "version": "2.0.0",
     "description": "Functions to make reaction-base menu with discord.js",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
