@@ -12,7 +12,7 @@ import { Predicate } from "../models/Predicate";
  * @param channel - Channel where the message is posted.
  * @param caption - Message caption.
  * @param list - A list of element.
- * @param duration - Duration after which the reactor is fulfilled.
+ * @param duration - Duration after which the reactor is fulfilled (in milliseconds).
  * @param userFilter - Determines if a user is allow to react.
  * @param options 
  */
