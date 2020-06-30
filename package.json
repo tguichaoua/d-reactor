@@ -6,7 +6,6 @@
     "types": "dist/index.d.ts",
     "scripts": {
         "v": "npm --no-git-tag-version version",
-        "docs": "typedoc ./src/",
         "build": "tsc",
         "clean": "rm -rf ./dist",
         "rebuild": "npm run clean && npm run build",
