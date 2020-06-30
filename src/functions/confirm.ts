@@ -1,7 +1,7 @@
 import { TextBasedChannelFields, User } from "discord.js";
 import { Reactor } from "../models/Reactor";
 import { Predicate } from "../models/Predicate";
-import { ReactorOptions } from "../models/options/ReactorOptions";
+import { ReactorOptions } from "../models/ReactorOptions";
 import emojis from "../misc/emojis.json";
 
 /**

@@ -1,7 +1,7 @@
 import { Message, EmojiResolvable, ReactionCollector, MessageReaction, User } from "discord.js";
 import { ResolvedReactor, PartialResolvedReactor } from "./ResolvedReactor";
 import { Predicate } from "./Predicate";
-import { ReactorOptions } from "./options/ReactorOptions";
+import { ReactorOptions } from "./ReactorOptions";
 
 /** @internal */
 export interface OnReactionChangedParams {
