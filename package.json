@@ -35,9 +35,7 @@
         "typedoc": "^0.17.6",
         "typescript": "^3.8.3"
     },
-    "dependencies": {
-        "p-cancelable": "^2.0.0"
-    },
+    "dependencies": {},
     "peerDependencies": {
         "discord.js": "^12.2.0"
     }
