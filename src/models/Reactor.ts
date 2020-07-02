@@ -19,6 +19,9 @@ export type OnEndCallback<C> = ((collector: ReactionCollector) => C) | {
 /** @internal */
 export interface ReactorInternalOptions<R, C = R> {
     fulfilledOnTimeout?: C extends R ? boolean : never;
+    onCollect?: (params: OnReactionChangedParams) => { value: R } | { remove: boolean; promise?: Promise<void> } | void;
+    onRemove?: (params: OnReactionChangedParams) => void;
+    userFilter?: Predicate<User>;
 }
 
 export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
@@ -37,9 +40,6 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
         options: ReactorOptions | undefined,
         onEnd: OnEndCallback<C>,
         internalOptions: ReactorInternalOptions<R, C>,
-        onCollect?: (params: OnReactionChangedParams) => { value: R } | boolean | void,
-        onRemove?: (params: OnReactionChangedParams) => void,
-        userFilter?: Predicate<User>,
     ) {
         const opts: ReactorOptions =
         {
@@ -81,22 +81,27 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                         // don't trigger userFilter nor onCollect if the user is the bot
                         if (user.id === message.client.user?.id) return;
 
-                        if (userFilter && !userFilter(user))
+                        if (internalOptions.userFilter && !internalOptions.userFilter(user))
                             await reaction.users.remove(user).catch(() => { });
 
-                        if (onCollect) {
-                            const action = onCollect({ collector, reaction, user });
-                            if (typeof action === "boolean" || !action) {
-                                if (action === false) await reaction.users.remove(user).catch(() => { });
+                        if (internalOptions.onCollect) {
+                            const action = internalOptions.onCollect({ collector, reaction, user });
+                            if (action) {
+                                if ("value" in action) {
+                                    doResolve({ status: "fulfilled", value: action.value });
+                                } else {
+                                    await Promise.all([
+                                        action.promise?.catch(() => { }),
+                                        action.remove ? reaction.users.remove(user).catch(() => { }) : undefined
+                                    ]);
+                                }
                             }
-                            else
-                                doResolve({ status: "fulfilled", value: action.value });
                         }
                     });
 
-                    if (onRemove) {
+                    if (internalOptions.onRemove) {
                         collector.on("remove", (reaction, user) => {
-                            onRemove({ collector, reaction, user });
+                            (internalOptions.onRemove as NonNullable<typeof internalOptions["onRemove"]>)({ collector, reaction, user });
                         });
                     }
 

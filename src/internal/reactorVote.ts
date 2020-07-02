@@ -2,7 +2,6 @@ import { TextBasedChannelFields, User } from "discord.js";
 import { reactorList, ListOptions } from "./reactorList";
 import { VoteResult, VoteElement, makeVoteResult } from "../models/VoteResult";
 import { Reactor, ReactorInternalOptions } from "../models/Reactor";
-import { Predicate } from "../models/Predicate";
 
 export type VoteOptions<T> = ListOptions<T> & {
     /** Determine the number maximal of vote a user can do.
@@ -13,13 +12,15 @@ export type VoteOptions<T> = ListOptions<T> & {
 };
 
 /** @internal */
+export type ReactorVoteInternalOptions<R, C = R> = Omit<ReactorInternalOptions<R, C>, "onCollect" | "onRemove">;
+
+/** @internal */
 export function reactorVote<T>(
     channel: TextBasedChannelFields,
     caption: string,
     list: readonly T[],
     options: VoteOptions<T>,
-    internalOptions: ReactorInternalOptions<VoteResult<T>>,
-    userFilter: Predicate<User> | undefined,
+    internalOptions: ReactorVoteInternalOptions<VoteResult<T>>,
 ): Reactor<VoteResult<T>>;
 
 /** @internal */
@@ -28,8 +29,7 @@ export function reactorVote<T, R>(
     caption: string,
     list: readonly T[],
     options: VoteOptions<T>,
-    internalOptions: ReactorInternalOptions<R, VoteResult<T>>,
-    userFilter: Predicate<User> | undefined,
+    internalOptions: ReactorVoteInternalOptions<R, VoteResult<T>>,
     onUpdate: (element: VoteElement<T>) => { value: R } | void,
 ): Reactor<R, VoteResult<T>>;
 
@@ -39,8 +39,7 @@ export function reactorVote<T, R>(
     caption: string,
     list: readonly T[],
     options: VoteOptions<T>,
-    internalOptions: ReactorInternalOptions<VoteResult<T> | R, VoteResult<T>>,
-    userFilter: Predicate<User> | undefined,
+    internalOptions: ReactorVoteInternalOptions<VoteResult<T> | R, VoteResult<T>>,
     onUpdate?: (element: VoteElement<T>) => { value: R } | void,
 ) {
     const votes = new Array<User[]>(list.length);
@@ -53,25 +52,28 @@ export function reactorVote<T, R>(
         list,
         options,
         () => makeVoteResult(list.map((value, index) => { return { value, users: votes[index] } })),
-        internalOptions,
-        ({ user, index }) => {
-            if (options.votePerUser &&
-                options.votePerUser > 0 &&
-                votes.filter(users => users.includes(user)).length >= options.votePerUser
-            )
-                return false;
+        {
+            ...internalOptions,
+            ...{
+                onCollect({ user, index }) {
+                    if (options.votePerUser &&
+                        options.votePerUser > 0 &&
+                        votes.filter(users => users.includes(user)).length >= options.votePerUser
+                    )
+                        return { remove: true };
 
-            const users = votes[index];
-            if (!users.includes(user)) {
-                users.push(user);
-                if (onUpdate) return onUpdate({ value: list[index], users })
+                    const users = votes[index];
+                    if (!users.includes(user)) {
+                        users.push(user);
+                        if (onUpdate) return onUpdate({ value: list[index], users })
+                    }
+                },
+                onRemove({ user, index }) {
+                    const users = votes[index];
+                    const i = users.indexOf(user);
+                    if (i !== -1) users.splice(i, 1);
+                },
             }
-        },
-        ({ user, index }) => {
-            const users = votes[index];
-            const i = users.indexOf(user);
-            if (i !== -1) users.splice(i, 1);
-        },
-        userFilter,
+        }
     );
 }

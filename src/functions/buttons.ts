@@ -3,7 +3,7 @@ import { Reactor } from "../models/Reactor";
 
 interface Button {
     emoji: EmojiResolvable;
-    clicked: (user: User, reactor: Reactor<void>) => void;
+    clicked: (user: User, reactor: Reactor<never, void>) => void | Promise<void>;
 }
 
 export function buttons(
@@ -11,17 +11,16 @@ export function buttons(
     ...butons: Button[]
 ) {
     const emojis = butons.map(b => b.emoji);
-    const reactor = new Reactor<void>(
+    const reactor: Reactor<never, void> = new Reactor<never, void>(
         Promise.resolve(message),
         emojis,
         {},
         () => undefined,
-        {},
-        ({ reaction, user }) => {
-            const i = emojis.indexOf(reaction.emoji.name);
-            if (i !== -1) {
-                butons[i].clicked(user, reactor);
-                return false;
+        {
+            onCollect({ reaction, user }) {
+                const i = emojis.indexOf(reaction.emoji.name);
+                if (i !== -1)
+                    return { remove: true, promise: Promise.resolve(butons[i].clicked(user, reactor)) };
             }
         }
     );
