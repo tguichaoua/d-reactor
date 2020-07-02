@@ -28,8 +28,9 @@ export function unanimousVote<T>(
         caption,
         list,
         { ...options, ...{ votePerUser: undefined } },
-        {},
-        user => users.some(u => u.id === user.id),
+        {
+            userFilter: user => users.some(u => u.id === user.id)
+        },
         e => e.users.length === users.length ? { value: e.value } : undefined,
     );
 }

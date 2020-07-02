@@ -46,24 +46,23 @@ export function select<T>(
         list,
         options,
         () => Array.from(selected),
-        {},
-        ({ index }) => {
-            selected.add(list[index]);
-            if (selected.size >= count) return { value: Array.from(selected) };
-        },
-        ({ index }) => {
-            selected.delete(list[index]);
-        },
-        u => u.id === user.id,
-        options?.minimum ?
-            [{
-                emoji: emojis.checkMark,
-                action() {
-                    if (options?.minimum && selected.size >= options.minimum) {
-                        return { value: Array.from(selected) };
+        {
+            userFilter: u => u.id === user.id,
+            onCollect({ index }) {
+                selected.add(list[index]);
+                if (selected.size >= count) return { value: Array.from(selected) };
+            },
+            onRemove({ index }) { selected.delete(list[index]); },
+            buttons: options?.minimum ?
+                [{
+                    emoji: emojis.checkMark,
+                    action() {
+                        if (options?.minimum && selected.size >= options.minimum) {
+                            return { value: Array.from(selected) };
+                        }
                     }
-                }
-            }] :
-            []
+                }] :
+                []
+        }
     );
 }
