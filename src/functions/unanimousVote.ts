@@ -5,11 +5,11 @@ import { reactorVote } from "../internal/reactorVote";
 /**
  * Send a message with the caption and elements in the list.
  * Fulfilled when all user in `users` select the same element.
- * 
+ *
  * Resolved value:
  * - `fulfilled`: The selected element
  * - `cancelled`: A `VoteResult` that represent the current state of vote when it was cancelled.
- * 
+ *
  * @param channel - Channel where the message is posted.
  * @param caption - Message caption.
  * @param users - A list of user that can vote.
@@ -29,8 +29,9 @@ export function unanimousVote<T>(
         list,
         { ...options, ...{ votePerUser: undefined } },
         {
-            userFilter: user => users.some(u => u.id === user.id)
+            userFilter: (user) => users.some((u) => u.id === user.id),
         },
-        e => e.users.length === users.length ? { value: e.value } : undefined,
+        (e) =>
+            e.users.length === users.length ? { value: e.value } : undefined
     );
 }

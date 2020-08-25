@@ -1,4 +1,10 @@
-import { Message, EmojiResolvable, ReactionCollector, MessageReaction, User } from "discord.js";
+import {
+    Message,
+    EmojiResolvable,
+    ReactionCollector,
+    MessageReaction,
+    User,
+} from "discord.js";
 import { ResolvedReactor, PartialResolvedReactor } from "./ResolvedReactor";
 import { Predicate } from "./Predicate";
 import { ReactorOptions } from "./ReactorOptions";
@@ -11,21 +17,24 @@ export interface OnReactionChangedParams {
 }
 
 /** @internal */
-export type OnEndCallback<C> = ((collector: ReactionCollector) => C) | {
-    onCancel: (collector: ReactionCollector) => C,
-    onTimeout: (collector: ReactionCollector) => C,
-}
+export type OnEndCallback<C> =
+    | ((collector: ReactionCollector) => C)
+    | {
+          onCancel: (collector: ReactionCollector) => C;
+          onTimeout: (collector: ReactionCollector) => C;
+      };
 
 /** @internal */
 export interface ReactorInternalOptions<R, C = R> {
     fulfilledOnTimeout?: C extends R ? boolean : never;
-    onCollect?: (params: OnReactionChangedParams) => { value: R } | { remove: boolean; promise?: Promise<void> } | void;
+    onCollect?: (
+        params: OnReactionChangedParams
+    ) => { value: R } | { remove: boolean; promise?: Promise<void> } | void;
     onRemove?: (params: OnReactionChangedParams) => void;
     userFilter?: Predicate<User>;
 }
 
 export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
-
     private readonly _promise: Promise<ResolvedReactor<R, C>>;
     private _collector?: ReactionCollector = undefined;
     private _cancelled = false;
@@ -39,19 +48,19 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
         emojis: readonly EmojiResolvable[],
         options: ReactorOptions | undefined,
         onEnd: OnEndCallback<C>,
-        internalOptions: ReactorInternalOptions<R, C>,
+        internalOptions: ReactorInternalOptions<R, C>
     ) {
-        const opts: ReactorOptions =
-        {
+        const opts: ReactorOptions = {
             ...{ deleteMessage: false },
-            ...options
+            ...options,
         };
 
         this._promise = message.then(
-            message => new Promise<ResolvedReactor<R, C>>(
-                async (resolve, reject) => {
+            (message) =>
+                new Promise<ResolvedReactor<R, C>>(async (resolve, reject) => {
                     const collector = message.createReactionCollector(
-                        (reaction: MessageReaction, _: User) => emojis.includes(reaction.emoji.name),
+                        (reaction: MessageReaction, _: User) =>
+                            emojis.includes(reaction.emoji.name),
                         {
                             dispose: true,
                         }
@@ -63,14 +72,23 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                         this._fulfilled = true;
                         if (timer) message.client.clearTimeout(timer);
                         collector.stop();
-                    }
+                    };
 
                     const doResolve = (value: PartialResolvedReactor<R, C>) => {
                         stopCollector();
-                        const result: ResolvedReactor<R, C> = Object.assign(value, { message });
-                        if (opts.deleteMessage) resolve(message.delete().then(() => result, () => result));
+                        const result: ResolvedReactor<
+                            R,
+                            C
+                        > = Object.assign(value, { message });
+                        if (opts.deleteMessage)
+                            resolve(
+                                message.delete().then(
+                                    () => result,
+                                    () => result
+                                )
+                            );
                         else resolve(result);
-                    }
+                    };
 
                     function doReject(reason: any) {
                         stopCollector();
@@ -81,18 +99,32 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                         // don't trigger userFilter nor onCollect if the user is the bot
                         if (user.id === message.client.user?.id) return;
 
-                        if (internalOptions.userFilter && !internalOptions.userFilter(user))
-                            await reaction.users.remove(user).catch(() => { });
+                        if (
+                            internalOptions.userFilter &&
+                            !internalOptions.userFilter(user)
+                        )
+                            await reaction.users.remove(user).catch(() => {});
 
                         if (internalOptions.onCollect) {
-                            const action = internalOptions.onCollect({ collector, reaction, user });
+                            const action = internalOptions.onCollect({
+                                collector,
+                                reaction,
+                                user,
+                            });
                             if (action) {
                                 if ("value" in action) {
-                                    doResolve({ status: "fulfilled", value: action.value });
+                                    doResolve({
+                                        status: "fulfilled",
+                                        value: action.value,
+                                    });
                                 } else {
                                     await Promise.all([
-                                        action.promise?.catch(() => { }),
-                                        action.remove ? reaction.users.remove(user).catch(() => { }) : undefined
+                                        action.promise?.catch(() => {}),
+                                        action.remove
+                                            ? reaction.users
+                                                  .remove(user)
+                                                  .catch(() => {})
+                                            : undefined,
                                     ]);
                                 }
                             }
@@ -101,56 +133,87 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
 
                     if (internalOptions.onRemove) {
                         collector.on("remove", (reaction, user) => {
-                            (internalOptions.onRemove as NonNullable<typeof internalOptions["onRemove"]>)({ collector, reaction, user });
+                            (internalOptions.onRemove as NonNullable<
+                                typeof internalOptions["onRemove"]
+                            >)({ collector, reaction, user });
                         });
                     }
 
                     collector.once("end", () => {
                         if (this._fulfilled) return;
-                        if (typeof onEnd === "function") doResolve({
-                            status: this._cancelled ? "cancelled" :
-                                internalOptions.fulfilledOnTimeout ?
-                                    "fulfilled" :
-                                    "timeout",
-                            value: onEnd(collector) as any,
-                        });
+                        if (typeof onEnd === "function")
+                            doResolve({
+                                status: this._cancelled
+                                    ? "cancelled"
+                                    : internalOptions.fulfilledOnTimeout
+                                    ? "fulfilled"
+                                    : "timeout",
+                                value: onEnd(collector) as any,
+                            });
                         else {
-                            if (this._cancelled) doResolve({ status: "cancelled", value: onEnd.onCancel(collector) });
-                            else if (internalOptions.fulfilledOnTimeout) doResolve({ status: "fulfilled", value: onEnd.onTimeout(collector) as any });
-                            else doResolve({ status: "cancelled", value: onEnd.onTimeout(collector) });
+                            if (this._cancelled)
+                                doResolve({
+                                    status: "cancelled",
+                                    value: onEnd.onCancel(collector),
+                                });
+                            else if (internalOptions.fulfilledOnTimeout)
+                                doResolve({
+                                    status: "fulfilled",
+                                    value: onEnd.onTimeout(collector) as any,
+                                });
+                            else
+                                doResolve({
+                                    status: "cancelled",
+                                    value: onEnd.onTimeout(collector),
+                                });
                         }
                     });
 
                     for (const e of emojis) {
-                        await message.react(e).catch(() => { });
+                        await message.react(e).catch(() => {});
                         if (this._fulfilled) break;
                     }
 
                     if (!this._fulfilled && !this._cancelled && opts.duration)
-                        timer = message.client.setTimeout(() => collector.stop(), opts.duration);
-                }
-            )
+                        timer = message.client.setTimeout(
+                            () => collector.stop(),
+                            opts.duration
+                        );
+                })
         );
 
-        this.value = this._promise.then(r => r.value);
+        this.value = this._promise.then((r) => r.value);
     }
 
     then<TResult1 = ResolvedReactor<R, C>, TResult2 = never>(
-        onfulfilled?: ((value: ResolvedReactor<R, C>) => TResult1 | PromiseLike<TResult1>) | null | undefined,
-        onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | null | undefined
+        onfulfilled?:
+            | ((
+                  value: ResolvedReactor<R, C>
+              ) => TResult1 | PromiseLike<TResult1>)
+            | null
+            | undefined,
+        onrejected?:
+            | ((reason: any) => TResult2 | PromiseLike<TResult2>)
+            | null
+            | undefined
     ): Promise<TResult1 | TResult2> {
         return this._promise.then(onfulfilled, onrejected);
     }
 
     catch<TResult = never>(
-        onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | null | undefined
+        onrejected?:
+            | ((reason: any) => TResult | PromiseLike<TResult>)
+            | null
+            | undefined
     ): Promise<ResolvedReactor<R, C> | TResult> {
         return this._promise.catch(onrejected);
     }
 
     [Symbol.toStringTag]: string;
 
-    finally(onfinally?: (() => void) | null | undefined): Promise<ResolvedReactor<R, C>> {
+    finally(
+        onfinally?: (() => void) | null | undefined
+    ): Promise<ResolvedReactor<R, C>> {
         return this._promise.finally(onfinally);
     }
 
