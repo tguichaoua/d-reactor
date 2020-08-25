@@ -17,13 +17,17 @@ export interface VoteResult<T> {
 }
 
 /** @internal */
-export function makeVoteResult<T>(list: readonly VoteElement<T>[]): VoteResult<T> {
-    const ordered = Array.from(list).sort((a, b) => b.users.length - a.users.length);
+export function makeVoteResult<T>(
+    list: readonly VoteElement<T>[]
+): VoteResult<T> {
+    const ordered = Array.from(list).sort(
+        (a, b) => b.users.length - a.users.length
+    );
     const top: VoteElement<T>[] = [];
     const bottom: VoteElement<T>[] = [];
 
     {
-        let voteCount = ordered[0].users.length;
+        const voteCount = ordered[0].users.length;
         for (let i = 0; i < ordered.length; i++) {
             const e = ordered[i];
             if (e.users.length === voteCount) top.push(e);
@@ -31,7 +35,7 @@ export function makeVoteResult<T>(list: readonly VoteElement<T>[]): VoteResult<T
         }
     }
     {
-        let voteCount = ordered[ordered.length - 1].users.length;
+        const voteCount = ordered[ordered.length - 1].users.length;
         for (let i = ordered.length - 1; i >= 0; i--) {
             const e = ordered[i];
             if (e.users.length === voteCount) bottom.push(e);
