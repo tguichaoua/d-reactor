@@ -1,4 +1,4 @@
-import { TextBasedChannelFields, EmojiResolvable, User } from "discord.js";
+import { TextBasedChannelFields, EmojiResolvable } from "discord.js";
 import { makeListMessage, MessageListOptions } from "./makeListMessage";
 import {
     Reactor,
