@@ -6,6 +6,7 @@
     "types": "dist/index.d.ts",
     "scripts": {
         "v": "npm --no-git-tag-version version",
+        "test": "npm run lint && npm run build",
         "lint": "eslint . --ext .ts",
         "lint:fix": "eslint . --ext .ts --fix",
         "prettier:format": "prettier --config .prettierrc src/**/*.ts --write",
