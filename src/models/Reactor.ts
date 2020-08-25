@@ -57,21 +57,28 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
 
         this._promise = message.then(
             (message) =>
+                /* eslint-disable no-async-promise-executor */
                 new Promise<ResolvedReactor<R, C>>(async (resolve, reject) => {
-                    const collector = message.createReactionCollector(
-                        (reaction: MessageReaction, _: User) =>
+                    const collector = (this._collector = message.createReactionCollector(
+                        (reaction: MessageReaction) =>
                             emojis.includes(reaction.emoji.name),
                         {
                             dispose: true,
                         }
-                    );
-                    this._collector = collector;
+                    ));
+
                     let timer: NodeJS.Timer | undefined = undefined;
 
                     const stopCollector = () => {
                         this._fulfilled = true;
                         if (timer) message.client.clearTimeout(timer);
                         collector.stop();
+                    };
+
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    const doReject = (reason: any) => {
+                        stopCollector();
+                        reject(reason);
                     };
 
                     const doResolve = (value: PartialResolvedReactor<R, C>) => {
@@ -90,96 +97,109 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                         else resolve(result);
                     };
 
-                    function doReject(reason: any) {
-                        stopCollector();
-                        reject(reason);
-                    }
+                    try {
+                        // Don't use resolve or reject directly
+                        // use doResolve and doReject instead.
 
-                    collector.on("collect", async (reaction, user) => {
-                        // don't trigger userFilter nor onCollect if the user is the bot
-                        if (user.id === message.client.user?.id) return;
+                        collector.on("collect", async (reaction, user) => {
+                            // don't trigger userFilter nor onCollect if the user is the bot
+                            if (user.id === message.client.user?.id) return;
 
-                        if (
-                            internalOptions.userFilter &&
-                            !internalOptions.userFilter(user)
-                        )
-                            await reaction.users.remove(user).catch(() => {});
+                            if (
+                                internalOptions.userFilter &&
+                                !internalOptions.userFilter(user)
+                            )
+                                await reaction.users
+                                    .remove(user)
+                                    .catch(console.error);
 
-                        if (internalOptions.onCollect) {
-                            const action = internalOptions.onCollect({
-                                collector,
-                                reaction,
-                                user,
-                            });
-                            if (action) {
-                                if ("value" in action) {
-                                    doResolve({
-                                        status: "fulfilled",
-                                        value: action.value,
-                                    });
-                                } else {
-                                    await Promise.all([
-                                        action.promise?.catch(() => {}),
-                                        action.remove
-                                            ? reaction.users
-                                                  .remove(user)
-                                                  .catch(() => {})
-                                            : undefined,
-                                    ]);
+                            if (internalOptions.onCollect) {
+                                const action = internalOptions.onCollect({
+                                    collector,
+                                    reaction,
+                                    user,
+                                });
+                                if (action) {
+                                    if ("value" in action) {
+                                        doResolve({
+                                            status: "fulfilled",
+                                            value: action.value,
+                                        });
+                                    } else {
+                                        await Promise.all([
+                                            action.promise?.catch(
+                                                console.error
+                                            ),
+                                            action.remove
+                                                ? reaction.users
+                                                      .remove(user)
+                                                      .catch(console.error)
+                                                : undefined,
+                                        ]);
+                                    }
                                 }
                             }
-                        }
-                    });
-
-                    if (internalOptions.onRemove) {
-                        collector.on("remove", (reaction, user) => {
-                            (internalOptions.onRemove as NonNullable<
-                                typeof internalOptions["onRemove"]
-                            >)({ collector, reaction, user });
                         });
-                    }
 
-                    collector.once("end", () => {
-                        if (this._fulfilled) return;
-                        if (typeof onEnd === "function")
-                            doResolve({
-                                status: this._cancelled
-                                    ? "cancelled"
-                                    : internalOptions.fulfilledOnTimeout
-                                    ? "fulfilled"
-                                    : "timeout",
-                                value: onEnd(collector) as any,
+                        if (internalOptions.onRemove) {
+                            collector.on("remove", (reaction, user) => {
+                                (internalOptions.onRemove as NonNullable<
+                                    typeof internalOptions["onRemove"]
+                                >)({ collector, reaction, user });
                             });
-                        else {
-                            if (this._cancelled)
-                                doResolve({
-                                    status: "cancelled",
-                                    value: onEnd.onCancel(collector),
-                                });
-                            else if (internalOptions.fulfilledOnTimeout)
-                                doResolve({
-                                    status: "fulfilled",
-                                    value: onEnd.onTimeout(collector) as any,
-                                });
-                            else
-                                doResolve({
-                                    status: "cancelled",
-                                    value: onEnd.onTimeout(collector),
-                                });
                         }
-                    });
 
-                    for (const e of emojis) {
-                        await message.react(e).catch(() => {});
-                        if (this._fulfilled) break;
-                    }
+                        collector.once("end", () => {
+                            if (this._fulfilled) return;
+                            if (typeof onEnd === "function")
+                                doResolve({
+                                    status: this._cancelled
+                                        ? "cancelled"
+                                        : internalOptions.fulfilledOnTimeout
+                                        ? "fulfilled"
+                                        : "timeout",
+                                    value: onEnd(collector) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+                                });
+                            else {
+                                if (this._cancelled)
+                                    doResolve({
+                                        status: "cancelled",
+                                        value: onEnd.onCancel(collector),
+                                    });
+                                else if (internalOptions.fulfilledOnTimeout)
+                                    doResolve({
+                                        status: "fulfilled",
+                                        value: onEnd.onTimeout(
+                                            collector
+                                        ) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+                                    });
+                                else
+                                    doResolve({
+                                        status: "cancelled",
+                                        value: onEnd.onTimeout(collector),
+                                    });
+                            }
+                        });
 
-                    if (!this._fulfilled && !this._cancelled && opts.duration)
-                        timer = message.client.setTimeout(
-                            () => collector.stop(),
+                        for (const e of emojis) {
+                            await message.react(e).catch(console.error);
+                            if (this._fulfilled) break;
+                        }
+
+                        if (
+                            !this._fulfilled &&
+                            !this._cancelled &&
                             opts.duration
-                        );
+                        )
+                            timer = message.client.setTimeout(
+                                () => collector.stop(),
+                                opts.duration
+                            );
+                    } catch (e) {
+                        doReject(e);
+                    }
                 })
+            /* eslint-disable no-async-promise-executor */
         );
 
         this.value = this._promise.then((r) => r.value);
@@ -193,7 +213,7 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
             | null
             | undefined,
         onrejected?:
-            | ((reason: any) => TResult2 | PromiseLike<TResult2>)
+            | ((reason: any) => TResult2 | PromiseLike<TResult2>) // eslint-disable-line @typescript-eslint/no-explicit-any
             | null
             | undefined
     ): Promise<TResult1 | TResult2> {
@@ -202,7 +222,7 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
 
     catch<TResult = never>(
         onrejected?:
-            | ((reason: any) => TResult | PromiseLike<TResult>)
+            | ((reason: any) => TResult | PromiseLike<TResult>) // eslint-disable-line @typescript-eslint/no-explicit-any
             | null
             | undefined
     ): Promise<ResolvedReactor<R, C> | TResult> {
