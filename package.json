@@ -8,6 +8,7 @@
         "v": "npm --no-git-tag-version version",
         "test": "npm run lint && npm run test:build",
         "test:build": "tsc",
+        "start": "ts-node test/index.ts",
         "lint": "eslint . --ext .ts",
         "lint:fix": "eslint . --ext .ts --fix",
         "prettier:format": "prettier --config .prettierrc src/**/*.ts --write",
