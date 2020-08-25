@@ -46,5 +46,8 @@
     "dependencies": {},
     "peerDependencies": {
         "discord.js": "^12.2.0"
+    },
+    "engines": {
+        "node": ">=12"
     }
 }
