@@ -1,20 +1,16 @@
 {
-  "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "declaration": true, /* Generates corresponding '.d.ts' file. */
-    "outDir": "./dist/", /* Redirect output structure to the directory. */
-    "rootDir": "./src/", /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
-    "strict": true,
-    "strictNullChecks": true, /* Enable all strict type-checking options. */
-    "esModuleInterop": true, /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
-    "resolveJsonModule": true,
-    "forceConsistentCasingInFileNames": true,
-    "stripInternal": true,
-  },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "bin"
-  ]
+    "compilerOptions": {
+        "target": "ES2019",
+        "module": "commonjs",
+        "declaration": true,
+        "outDir": "./dist/",
+        "rootDir": "./src/",
+        "strict": true,
+        "strictNullChecks": true,
+        "esModuleInterop": true,
+        "resolveJsonModule": true,
+        "forceConsistentCasingInFileNames": true,
+        "stripInternal": true
+    },
+    "exclude": ["node_modules", "dist", "bin"]
 }
