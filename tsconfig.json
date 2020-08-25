@@ -12,5 +12,5 @@
         "forceConsistentCasingInFileNames": true,
         "stripInternal": true
     },
-    "exclude": ["node_modules", "dist", "bin"]
+    "exclude": ["node_modules", "dist", "test"]
 }
