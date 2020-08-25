@@ -27,7 +27,7 @@ export function makeVoteResult<T>(
     const bottom: VoteElement<T>[] = [];
 
     {
-        let voteCount = ordered[0].users.length;
+        const voteCount = ordered[0].users.length;
         for (let i = 0; i < ordered.length; i++) {
             const e = ordered[i];
             if (e.users.length === voteCount) top.push(e);
@@ -35,7 +35,7 @@ export function makeVoteResult<T>(
         }
     }
     {
-        let voteCount = ordered[ordered.length - 1].users.length;
+        const voteCount = ordered[ordered.length - 1].users.length;
         for (let i = ordered.length - 1; i >= 0; i--) {
             const e = ordered[i];
             if (e.users.length === voteCount) bottom.push(e);
