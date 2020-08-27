@@ -1,3 +1,6 @@
+// --------------------[ Misc ]-------------------- //
+export { Logger } from "./logger";
+
 // --------------------[ Models ]-------------------- //
 export { Reactor } from "./models/Reactor";
 export { ResolvedReactor } from "./models/ResolvedReactor";
