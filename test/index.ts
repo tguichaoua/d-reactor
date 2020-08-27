@@ -1,5 +1,8 @@
 import { Client } from "discord.js";
 import env from "./env.json";
+import { Logger } from "../src";
+
+Logger.on("*", (m, l) => console.log(`[d-reactor] - ${l} - ${m}`));
 
 const client = new Client();
 

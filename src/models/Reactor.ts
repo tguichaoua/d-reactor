@@ -8,6 +8,7 @@ import {
 import { ResolvedReactor, PartialResolvedReactor } from "./ResolvedReactor";
 import { Predicate } from "./Predicate";
 import { ReactorOptions } from "./ReactorOptions";
+import { error } from "../logger";
 
 /** @internal */
 export interface OnReactionChangedParams {
@@ -109,9 +110,7 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                                 internalOptions.userFilter &&
                                 !internalOptions.userFilter(user)
                             )
-                                await reaction.users
-                                    .remove(user)
-                                    .catch(console.error);
+                                await reaction.users.remove(user).catch(error);
 
                             if (internalOptions.onCollect) {
                                 const action = internalOptions.onCollect({
@@ -127,13 +126,11 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                                         });
                                     } else {
                                         await Promise.all([
-                                            action.promise?.catch(
-                                                console.error
-                                            ),
+                                            action.promise?.catch(error),
                                             action.remove
                                                 ? reaction.users
                                                       .remove(user)
-                                                      .catch(console.error)
+                                                      .catch(error)
                                                 : undefined,
                                         ]);
                                     }
@@ -182,7 +179,7 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                         });
 
                         for (const e of emojis) {
-                            await message.react(e).catch(console.error);
+                            await message.react(e).catch(error);
                             if (this._fulfilled) break;
                         }
 

@@ -51,7 +51,9 @@
         "ts-node": "^9.0.0",
         "typescript": "^3.9.7"
     },
-    "dependencies": {},
+    "dependencies": {
+        "eei.ts": "^1.0.1"
+    },
     "peerDependencies": {
         "discord.js": "^12.2.0"
     },
