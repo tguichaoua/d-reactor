@@ -52,7 +52,7 @@
         "typescript": "^3.9.7"
     },
     "dependencies": {
-        "eei.ts": "^1.0.0"
+        "eei.ts": "^1.0.1"
     },
     "peerDependencies": {
         "discord.js": "^12.2.0"
