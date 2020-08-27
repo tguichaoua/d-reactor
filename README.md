@@ -4,6 +4,9 @@
     <img alt="Version" src="https://img.shields.io/npm/v/d-reactor.svg">
   </a>
   <img src="https://img.shields.io/badge/node-%3E%3D12-blue.svg" />
+  <a href="https://www.npmjs.com/package/discord.js" target="_blank">
+    <img src="https://img.shields.io/badge/discord.js-%3E%3D12.2.0-blue.svg" />
+  </a>
   <a href="https://github.com/tguichaoua/d-reactor/wiki" target="_blank">
     <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
   </a>
