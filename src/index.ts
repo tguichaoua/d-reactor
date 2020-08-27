@@ -4,7 +4,7 @@ export { Logger } from "./logger";
 // --------------------[ Models ]-------------------- //
 export { Reactor } from "./models/Reactor";
 export { ResolvedReactor } from "./models/ResolvedReactor";
-export { VoteResult } from "./models/VoteResult";
+export { VoteResult, VoteElement } from "./models/VoteResult";
 
 // ------------------[ Functions ]------------------ //
 export { buttons } from "./functions/buttons";
