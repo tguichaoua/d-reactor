@@ -20,7 +20,7 @@ export function voteCommittee<T>(
     caption: string,
     list: readonly T[],
     users: User[],
-    votePerUser: number = 1,
+    votePerUser = 1,
     options?: Omit<VoteOptions<T>, "votePerUser">
 ) {
     if (votePerUser < 1) throw new Error("votePerUser must be greater than 1.");
