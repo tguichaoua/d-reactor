@@ -31,7 +31,10 @@ export function unanimousVote<T>(
         {
             userFilter: (user) => users.some((u) => u.id === user.id),
         },
-        (e) =>
-            e.users.length === users.length ? { value: e.value } : undefined
+        {
+            onAdd(e) {
+                if (e.users.length === users.length) return { value: e.value };
+            },
+        }
     );
 }
