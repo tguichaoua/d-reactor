@@ -1,4 +1,4 @@
-import { TextBasedChannelFields, User } from "discord.js";
+import { PartialTextBasedChannelFields, User } from "discord.js";
 import { reactorVote, VoteOptions } from "../internal/reactorVote";
 import { Predicate } from "../models/Predicate";
 
@@ -17,7 +17,7 @@ import { Predicate } from "../models/Predicate";
  * @param options
  */
 export function vote<T>(
-    channel: TextBasedChannelFields,
+    channel: PartialTextBasedChannelFields,
     caption: string,
     list: readonly T[],
     duration: number,

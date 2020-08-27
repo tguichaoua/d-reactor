@@ -1,4 +1,4 @@
-import { TextBasedChannelFields, EmojiResolvable } from "discord.js";
+import { PartialTextBasedChannelFields, EmojiResolvable } from "discord.js";
 import indexed_emojis from "../misc/indexed-emojis.json";
 
 export interface MessageListOptions<T> {
@@ -13,7 +13,7 @@ export interface MessageListOptions<T> {
 
 /** @internal */
 export function makeListMessage<T>(
-    channel: TextBasedChannelFields,
+    channel: PartialTextBasedChannelFields,
     caption: string,
     list: readonly T[],
     options?: Partial<MessageListOptions<T>>
