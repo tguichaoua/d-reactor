@@ -12,3 +12,4 @@ export { confirm } from "./functions/confirm";
 export { select } from "./functions/select";
 export { unanimousVote } from "./functions/unanimousVote";
 export { vote } from "./functions/vote";
+export { voteCommittee } from "./functions/voteCommittee";
