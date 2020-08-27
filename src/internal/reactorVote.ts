@@ -1,4 +1,4 @@
-import { TextBasedChannelFields, User } from "discord.js";
+import { PartialTextBasedChannelFields, User } from "discord.js";
 import { reactorList, ListOptions } from "./reactorList";
 import { VoteResult, VoteElement, makeVoteResult } from "../models/VoteResult";
 import { Reactor, ReactorInternalOptions } from "../models/Reactor";
@@ -25,7 +25,7 @@ export type OnVoteUpdate<T, Return> = (
 
 /** @internal */
 export function reactorVote<T>(
-    channel: TextBasedChannelFields,
+    channel: PartialTextBasedChannelFields,
     caption: string,
     list: readonly T[],
     options: VoteOptions<T>,
@@ -38,7 +38,7 @@ export function reactorVote<T>(
 
 /** @internal */
 export function reactorVote<T, R>(
-    channel: TextBasedChannelFields,
+    channel: PartialTextBasedChannelFields,
     caption: string,
     list: readonly T[],
     options: VoteOptions<T>,
@@ -51,7 +51,7 @@ export function reactorVote<T, R>(
 
 /** @internal */
 export function reactorVote<T, R>(
-    channel: TextBasedChannelFields,
+    channel: PartialTextBasedChannelFields,
     caption: string,
     list: readonly T[],
     options: VoteOptions<T>,

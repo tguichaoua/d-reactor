@@ -1,4 +1,4 @@
-import { TextBasedChannelFields, EmojiResolvable } from "discord.js";
+import { PartialTextBasedChannelFields, EmojiResolvable } from "discord.js";
 import { makeListMessage, MessageListOptions } from "./makeListMessage";
 import {
     Reactor,
@@ -32,7 +32,7 @@ export type ReactorListInternalOptions<R, C> = Omit<
 
 /** @internal */
 export function reactorList<T, R, C = R>(
-    channel: TextBasedChannelFields,
+    channel: PartialTextBasedChannelFields,
     caption: string,
     list: readonly T[],
     options: ListOptions<T> | undefined,
