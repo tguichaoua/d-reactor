@@ -4,17 +4,17 @@ import { Predicate } from "../models/Predicate";
 
 /**
  * Send a message with the caption and elements in the list.
- * 
+ *
  * Resolved value:
  * - `fulfilled`: A `VoteResult` that represent the current state of vote when it was fulfilled.
  * - `cancelled`: A `VoteResult` that represent the current state of vote when it was cancelled.
- * 
+ *
  * @param channel - Channel where the message is posted.
  * @param caption - Message caption.
  * @param list - A list of element.
  * @param duration - Duration after which the reactor is fulfilled (in milliseconds).
  * @param userFilter - Determines if a user is allow to react.
- * @param options 
+ * @param options
  */
 export function vote<T>(
     channel: TextBasedChannelFields,
@@ -22,7 +22,7 @@ export function vote<T>(
     list: readonly T[],
     duration: number,
     userFilter?: Predicate<User>,
-    options?: Omit<VoteOptions<T>, "duration">,
+    options?: Omit<VoteOptions<T>, "duration">
 ) {
     return reactorVote<T>(
         channel,
@@ -31,7 +31,7 @@ export function vote<T>(
         { ...options, ...{ duration } },
         {
             fulfilledOnTimeout: true,
-            userFilter
-        },
+            userFilter,
+        }
     );
 }

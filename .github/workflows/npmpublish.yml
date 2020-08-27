@@ -8,7 +8,7 @@ on:
     types: [released]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -16,11 +16,10 @@ jobs:
         with:
           node-version: 12
       - run: npm ci
-      - run: npm run rebuild
       - run: npm test
 
   publish-npm:
-    needs: build
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

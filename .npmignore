@@ -2,6 +2,7 @@
 .github/
 docs/
 src/
+test/
 README.md
 tsconfig.json
 typedoc.json

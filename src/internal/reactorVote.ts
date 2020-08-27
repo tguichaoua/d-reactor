@@ -8,11 +8,20 @@ export type VoteOptions<T> = ListOptions<T> & {
      * Negative or null number are considered as `unlimited`.
      * Default is `unlimited`.
      */
-    votePerUser?: number
+    votePerUser?: number;
 };
 
 /** @internal */
-export type ReactorVoteInternalOptions<R, C = R> = Omit<ReactorInternalOptions<R, C>, "onCollect" | "onRemove">;
+export type ReactorVoteInternalOptions<R, C = R> = Omit<
+    ReactorInternalOptions<R, C>,
+    "onCollect" | "onRemove"
+>;
+
+/** @internal */
+export type OnVoteUpdate<T, Return> = (
+    element: VoteElement<T>,
+    votes: ReadonlyArray<readonly User[]>
+) => Return;
 
 /** @internal */
 export function reactorVote<T>(
@@ -21,6 +30,10 @@ export function reactorVote<T>(
     list: readonly T[],
     options: VoteOptions<T>,
     internalOptions: ReactorVoteInternalOptions<VoteResult<T>>,
+    callbacks?: {
+        onRemove?: OnVoteUpdate<T, void>;
+        onAdd?: OnVoteUpdate<T, { submit: boolean } | void>;
+    }
 ): Reactor<VoteResult<T>>;
 
 /** @internal */
@@ -30,7 +43,10 @@ export function reactorVote<T, R>(
     list: readonly T[],
     options: VoteOptions<T>,
     internalOptions: ReactorVoteInternalOptions<R, VoteResult<T>>,
-    onUpdate: (element: VoteElement<T>) => { value: R } | void,
+    callbacks?: {
+        onRemove?: OnVoteUpdate<T, void>;
+        onAdd?: OnVoteUpdate<T, { value: R } | void>;
+    }
 ): Reactor<R, VoteResult<T>>;
 
 /** @internal */
@@ -39,41 +55,74 @@ export function reactorVote<T, R>(
     caption: string,
     list: readonly T[],
     options: VoteOptions<T>,
-    internalOptions: ReactorVoteInternalOptions<VoteResult<T> | R, VoteResult<T>>,
-    onUpdate?: (element: VoteElement<T>) => { value: R } | void,
+    internalOptions: ReactorVoteInternalOptions<
+        VoteResult<T> | R,
+        VoteResult<T>
+    >,
+    callbacks?: {
+        onRemove?: OnVoteUpdate<T, void>;
+        onAdd?: OnVoteUpdate<T, { submit: boolean } | { value: R } | void>;
+    }
 ) {
     const votes = new Array<User[]>(list.length);
-    for (let i = 0; i < list.length; i++)
-        votes[i] = new Array<User>();
+    for (let i = 0; i < list.length; i++) votes[i] = new Array<User>();
+
+    const getVoteResult = () =>
+        makeVoteResult(
+            list.map((value, index) => {
+                return { value, users: votes[index] };
+            })
+        );
 
     return reactorList<T, VoteResult<T> | R, VoteResult<T>>(
         channel,
         caption,
         list,
         options,
-        () => makeVoteResult(list.map((value, index) => { return { value, users: votes[index] } })),
+        getVoteResult,
         {
             ...internalOptions,
             ...{
                 onCollect({ user, index }) {
-                    if (options.votePerUser &&
+                    if (
+                        options.votePerUser &&
                         options.votePerUser > 0 &&
-                        votes.filter(users => users.includes(user)).length >= options.votePerUser
+                        votes.filter((users) => users.includes(user)).length >=
+                            options.votePerUser
                     )
                         return { remove: true };
 
                     const users = votes[index];
                     if (!users.includes(user)) {
                         users.push(user);
-                        if (onUpdate) return onUpdate({ value: list[index], users })
+                        if (callbacks?.onAdd) {
+                            const action = callbacks.onAdd(
+                                { value: list[index], users },
+                                votes
+                            );
+                            if (action) {
+                                if ("submit" in action)
+                                    return action.submit
+                                        ? { value: getVoteResult() }
+                                        : undefined;
+                                else return action;
+                            }
+                        }
                     }
                 },
                 onRemove({ user, index }) {
                     const users = votes[index];
                     const i = users.indexOf(user);
-                    if (i !== -1) users.splice(i, 1);
+                    if (i !== -1) {
+                        users.splice(i, 1);
+                        if (callbacks?.onRemove)
+                            callbacks.onRemove(
+                                { value: list[index], users },
+                                votes
+                            );
+                    }
                 },
-            }
+            },
         }
     );
 }
