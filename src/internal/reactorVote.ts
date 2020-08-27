@@ -29,7 +29,11 @@ export function reactorVote<T>(
     caption: string,
     list: readonly T[],
     options: VoteOptions<T>,
-    internalOptions: ReactorVoteInternalOptions<VoteResult<T>>
+    internalOptions: ReactorVoteInternalOptions<VoteResult<T>>,
+    callbacks?: {
+        onRemove?: OnVoteUpdate<T, void>;
+        onAdd?: OnVoteUpdate<T, { submit: boolean } | void>;
+    }
 ): Reactor<VoteResult<T>>;
 
 /** @internal */
@@ -39,7 +43,7 @@ export function reactorVote<T, R>(
     list: readonly T[],
     options: VoteOptions<T>,
     internalOptions: ReactorVoteInternalOptions<R, VoteResult<T>>,
-    callbacks: {
+    callbacks?: {
         onRemove?: OnVoteUpdate<T, void>;
         onAdd?: OnVoteUpdate<T, { value: R } | void>;
     }
@@ -57,23 +61,25 @@ export function reactorVote<T, R>(
     >,
     callbacks?: {
         onRemove?: OnVoteUpdate<T, void>;
-        onAdd?: OnVoteUpdate<T, { value: R } | void>;
+        onAdd?: OnVoteUpdate<T, { submit: boolean } | { value: R } | void>;
     }
 ) {
     const votes = new Array<User[]>(list.length);
     for (let i = 0; i < list.length; i++) votes[i] = new Array<User>();
+
+    const getVoteResult = () =>
+        makeVoteResult(
+            list.map((value, index) => {
+                return { value, users: votes[index] };
+            })
+        );
 
     return reactorList<T, VoteResult<T> | R, VoteResult<T>>(
         channel,
         caption,
         list,
         options,
-        () =>
-            makeVoteResult(
-                list.map((value, index) => {
-                    return { value, users: votes[index] };
-                })
-            ),
+        getVoteResult,
         {
             ...internalOptions,
             ...{
@@ -89,11 +95,19 @@ export function reactorVote<T, R>(
                     const users = votes[index];
                     if (!users.includes(user)) {
                         users.push(user);
-                        if (callbacks?.onAdd)
-                            return callbacks.onAdd(
+                        if (callbacks?.onAdd) {
+                            const action = callbacks.onAdd(
                                 { value: list[index], users },
                                 votes
                             );
+                            if (action) {
+                                if ("submit" in action)
+                                    return action.submit
+                                        ? { value: getVoteResult() }
+                                        : undefined;
+                                else return action;
+                            }
+                        }
                     }
                 },
                 onRemove({ user, index }) {
