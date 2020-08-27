@@ -1,4 +1,4 @@
-import { TextBasedChannelFields, User } from "discord.js";
+import { PartialTextBasedChannelFields, User } from "discord.js";
 import { ListOptions } from "../internal/reactorList";
 import { reactorVote } from "../internal/reactorVote";
 
@@ -17,7 +17,7 @@ import { reactorVote } from "../internal/reactorVote";
  * @param options
  */
 export function unanimousVote<T>(
-    channel: TextBasedChannelFields,
+    channel: PartialTextBasedChannelFields,
     caption: string,
     users: readonly User[],
     list: readonly T[],

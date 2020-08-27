@@ -1,4 +1,4 @@
-import { TextBasedChannelFields, User } from "discord.js";
+import { PartialTextBasedChannelFields, User } from "discord.js";
 import { ListOptions, reactorList } from "../internal/reactorList";
 import emojis from "../misc/emojis.json";
 
@@ -29,7 +29,7 @@ export type SelectOptions<T> = ListOptions<T> & Partial<SelectOptionsFull>;
  * @param options
  */
 export function select<T>(
-    channel: TextBasedChannelFields,
+    channel: PartialTextBasedChannelFields,
     caption: string,
     user: User,
     list: readonly T[],
