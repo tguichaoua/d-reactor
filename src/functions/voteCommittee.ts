@@ -24,6 +24,7 @@ export function voteCommittee<T>(
     options?: Omit<VoteOptions<T>, "votePerUser">
 ) {
     if (votePerUser < 1) throw new Error("votePerUser must be greater than 1.");
+    if (users.length === 0) throw new Error("users need at least one element.");
 
     return reactorVote<T>(
         channel,

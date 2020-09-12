@@ -23,6 +23,8 @@ export function unanimousVote<T>(
     list: readonly T[],
     options?: ListOptions<T>
 ) {
+    if (users.length === 0) throw new Error("users need at least one element.");
+
     return reactorVote(
         channel,
         caption,
