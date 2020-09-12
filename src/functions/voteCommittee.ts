@@ -2,7 +2,7 @@ import { PartialTextBasedChannelFields, User } from "discord.js";
 import { reactorVote, VoteOptions } from "../internal/reactorVote";
 
 /**
- * Similar to `vote` but is fulfilled when all users have voted.
+ * Similar to `vote` but is fulfilled when all voters have voted.
  *
  * Resolved value:
  * - `fulfilled`: A `VoteResult` that represent the current state of vote when it was fulfilled.
@@ -11,7 +11,7 @@ import { reactorVote, VoteOptions } from "../internal/reactorVote";
  * @param channel - Channel where the message is posted.
  * @param caption - Message caption.
  * @param list - A list of element.
- * @param users - The list of users that are allowed to vote.
+ * @param voters - The list of users that are allowed to vote.
  * @param votePerUser - The number of vote each user can make (default is 1).
  * @param options
  */
@@ -19,11 +19,13 @@ export function voteCommittee<T>(
     channel: PartialTextBasedChannelFields,
     caption: string,
     list: readonly T[],
-    users: User[],
+    voters: User[],
     votePerUser = 1,
     options?: Omit<VoteOptions<T>, "votePerUser">
 ) {
     if (votePerUser < 1) throw new Error("votePerUser must be greater than 1.");
+    if (voters.length === 0)
+        throw new Error("users need at least one element.");
 
     return reactorVote<T>(
         channel,
@@ -31,7 +33,7 @@ export function voteCommittee<T>(
         list,
         { ...options, votePerUser },
         {
-            userFilter: (user) => users.some((u) => user.id === u.id),
+            userFilter: (user) => voters.some((u) => user.id === u.id),
         },
         {
             onAdd(_, votes) {
@@ -40,7 +42,7 @@ export function voteCommittee<T>(
                     0
                 );
 
-                return { submit: total >= users.length * votePerUser };
+                return { submit: total >= voters.length * votePerUser };
             },
         }
     );
