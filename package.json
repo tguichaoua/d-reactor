@@ -23,9 +23,12 @@
     },
     "keywords": [
         "discord.js",
+        "discordjs",
         "discord",
         "reaction",
-        "menu"
+        "buttons",
+        "menu",
+        "typescript"
     ],
     "author": {
         "name": "Tristan Guichaoua",
