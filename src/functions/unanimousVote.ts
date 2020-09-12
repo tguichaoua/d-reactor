@@ -21,10 +21,9 @@ export function unanimousVote<T>(
     caption: string,
     voters: readonly User[],
     list: readonly T[],
-    options?: ListOptions<T>
+    options?: ListOptions<T>,
 ) {
-    if (voters.length === 0)
-        throw new Error("users need at least one element.");
+    if (voters.length === 0) throw new Error("users need at least one element.");
 
     return reactorVote(
         channel,
@@ -32,12 +31,12 @@ export function unanimousVote<T>(
         list,
         { ...options, ...{ votePerUser: undefined } },
         {
-            userFilter: (user) => voters.some((u) => u.id === user.id),
+            userFilter: user => voters.some(u => u.id === user.id),
         },
         {
             onAdd(e) {
                 if (e.users.length === voters.length) return { value: e.value };
             },
-        }
+        },
     );
 }

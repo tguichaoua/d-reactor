@@ -17,12 +17,8 @@ export interface VoteResult<T> {
 }
 
 /** @internal */
-export function makeVoteResult<T>(
-    list: readonly VoteElement<T>[]
-): VoteResult<T> {
-    const ordered = Array.from(list).sort(
-        (a, b) => b.users.length - a.users.length
-    );
+export function makeVoteResult<T>(list: readonly VoteElement<T>[]): VoteResult<T> {
+    const ordered = Array.from(list).sort((a, b) => b.users.length - a.users.length);
     const top: VoteElement<T>[] = [];
     const bottom: VoteElement<T>[] = [];
 

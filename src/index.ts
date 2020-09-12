@@ -3,10 +3,7 @@ export { Logger } from "./logger";
 
 // --------------------[ Models ]-------------------- //
 export { Reactor } from "./models/Reactor";
-export {
-    ResolvedReactor,
-    PartialResolvedReactor,
-} from "./models/ResolvedReactor";
+export { ResolvedReactor, PartialResolvedReactor } from "./models/ResolvedReactor";
 export { VoteResult, VoteElement } from "./models/VoteResult";
 
 // ------------------[ Functions ]------------------ //

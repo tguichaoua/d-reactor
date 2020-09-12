@@ -1,10 +1,4 @@
-import {
-    Message,
-    EmojiResolvable,
-    ReactionCollector,
-    MessageReaction,
-    User,
-} from "discord.js";
+import { Message, EmojiResolvable, ReactionCollector, MessageReaction, User } from "discord.js";
 import { ResolvedReactor, PartialResolvedReactor } from "./ResolvedReactor";
 import { Predicate } from "./Predicate";
 import { ReactorOptions } from "./ReactorOptions";
@@ -28,9 +22,7 @@ export type OnEndCallback<C> =
 /** @internal */
 export interface ReactorInternalOptions<R, C = R> {
     fulfilledOnTimeout?: C extends R ? boolean : never;
-    onCollect?: (
-        params: OnReactionChangedParams
-    ) => { value: R } | { remove: boolean; promise?: Promise<void> } | void;
+    onCollect?: (params: OnReactionChangedParams) => { value: R } | { remove: boolean; promise?: Promise<void> } | void;
     onRemove?: (params: OnReactionChangedParams) => void;
     userFilter?: Predicate<User>;
 }
@@ -49,7 +41,7 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
         emojis: readonly EmojiResolvable[],
         options: ReactorOptions | undefined,
         onEnd: OnEndCallback<C>,
-        internalOptions: ReactorInternalOptions<R, C>
+        internalOptions: ReactorInternalOptions<R, C>,
     ) {
         const opts: ReactorOptions = {
             ...{ deleteMessage: false },
@@ -57,15 +49,14 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
         };
 
         this._promise = message.then(
-            (message) =>
+            message =>
                 /* eslint-disable no-async-promise-executor */
                 new Promise<ResolvedReactor<R, C>>(async (resolve, reject) => {
                     const collector = (this._collector = message.createReactionCollector(
-                        (reaction: MessageReaction) =>
-                            emojis.includes(reaction.emoji.name),
+                        (reaction: MessageReaction) => emojis.includes(reaction.emoji.name),
                         {
                             dispose: true,
-                        }
+                        },
                     ));
 
                     let timer: NodeJS.Timer | undefined = undefined;
@@ -84,16 +75,13 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
 
                     const doResolve = (value: PartialResolvedReactor<R, C>) => {
                         stopCollector();
-                        const result: ResolvedReactor<
-                            R,
-                            C
-                        > = Object.assign(value, { message });
+                        const result: ResolvedReactor<R, C> = Object.assign(value, { message });
                         if (opts.deleteMessage)
                             resolve(
                                 message.delete().then(
                                     () => result,
-                                    () => result
-                                )
+                                    () => result,
+                                ),
                             );
                         else resolve(result);
                     };
@@ -106,10 +94,7 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                             // don't trigger userFilter nor onCollect if the user is the bot
                             if (user.id === message.client.user?.id) return;
 
-                            if (
-                                internalOptions.userFilter &&
-                                !internalOptions.userFilter(user)
-                            ) {
+                            if (internalOptions.userFilter && !internalOptions.userFilter(user)) {
                                 await reaction.users.remove(user).catch(error);
                                 return;
                             }
@@ -129,11 +114,7 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                                     } else {
                                         await Promise.all([
                                             action.promise?.catch(error),
-                                            action.remove
-                                                ? reaction.users
-                                                      .remove(user)
-                                                      .catch(error)
-                                                : undefined,
+                                            action.remove ? reaction.users.remove(user).catch(error) : undefined,
                                         ]);
                                     }
                                 }
@@ -142,9 +123,11 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
 
                         if (internalOptions.onRemove) {
                             collector.on("remove", (reaction, user) => {
-                                (internalOptions.onRemove as NonNullable<
-                                    typeof internalOptions["onRemove"]
-                                >)({ collector, reaction, user });
+                                (internalOptions.onRemove as NonNullable<typeof internalOptions["onRemove"]>)({
+                                    collector,
+                                    reaction,
+                                    user,
+                                });
                             });
                         }
 
@@ -168,9 +151,7 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                                 else if (internalOptions.fulfilledOnTimeout)
                                     doResolve({
                                         status: "fulfilled",
-                                        value: onEnd.onTimeout(
-                                            collector
-                                        ) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+                                        value: onEnd.onTimeout(collector) as any, // eslint-disable-line @typescript-eslint/no-explicit-any
                                     });
                                 else
                                     doResolve({
@@ -185,36 +166,24 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                             if (this._fulfilled) break;
                         }
 
-                        if (
-                            !this._fulfilled &&
-                            !this._cancelled &&
-                            opts.duration
-                        )
-                            timer = message.client.setTimeout(
-                                () => collector.stop(),
-                                opts.duration
-                            );
+                        if (!this._fulfilled && !this._cancelled && opts.duration)
+                            timer = message.client.setTimeout(() => collector.stop(), opts.duration);
                     } catch (e) {
                         doReject(e);
                     }
-                })
+                }),
             /* eslint-enable no-async-promise-executor */
         );
 
-        this.value = this._promise.then((r) => r.value);
+        this.value = this._promise.then(r => r.value);
     }
 
     then<TResult1 = ResolvedReactor<R, C>, TResult2 = never>(
-        onfulfilled?:
-            | ((
-                  value: ResolvedReactor<R, C>
-              ) => TResult1 | PromiseLike<TResult1>)
-            | null
-            | undefined,
+        onfulfilled?: ((value: ResolvedReactor<R, C>) => TResult1 | PromiseLike<TResult1>) | null | undefined,
         onrejected?:
             | ((reason: any) => TResult2 | PromiseLike<TResult2>) // eslint-disable-line @typescript-eslint/no-explicit-any
             | null
-            | undefined
+            | undefined,
     ): Promise<TResult1 | TResult2> {
         return this._promise.then(onfulfilled, onrejected);
     }
@@ -223,16 +192,14 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
         onrejected?:
             | ((reason: any) => TResult | PromiseLike<TResult>) // eslint-disable-line @typescript-eslint/no-explicit-any
             | null
-            | undefined
+            | undefined,
     ): Promise<ResolvedReactor<R, C> | TResult> {
         return this._promise.catch(onrejected);
     }
 
     [Symbol.toStringTag]: string;
 
-    finally(
-        onfinally?: (() => void) | null | undefined
-    ): Promise<ResolvedReactor<R, C>> {
+    finally(onfinally?: (() => void) | null | undefined): Promise<ResolvedReactor<R, C>> {
         return this._promise.finally(onfinally);
     }
 

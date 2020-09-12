@@ -22,7 +22,7 @@ export function vote<T>(
     list: readonly T[],
     duration: number,
     userFilter?: Predicate<User>,
-    options?: Omit<VoteOptions<T>, "duration">
+    options?: Omit<VoteOptions<T>, "duration">,
 ) {
     return reactorVote<T>(
         channel,
@@ -32,6 +32,6 @@ export function vote<T>(
         {
             fulfilledOnTimeout: true,
             userFilter,
-        }
+        },
     );
 }
