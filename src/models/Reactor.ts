@@ -196,7 +196,7 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                         doReject(e);
                     }
                 })
-            /* eslint-disable no-async-promise-executor */
+            /* eslint-enable no-async-promise-executor */
         );
 
         this.value = this._promise.then((r) => r.value);
