@@ -4,7 +4,7 @@ import { reactorVote } from "../internal/reactorVote";
 
 /**
  * Send a message with the caption and elements in the list.
- * Fulfilled when all user in `users` select the same element.
+ * Fulfilled when all voters select the same element.
  *
  * Resolved value:
  * - `fulfilled`: The selected element
@@ -12,29 +12,31 @@ import { reactorVote } from "../internal/reactorVote";
  *
  * @param channel - Channel where the message is posted.
  * @param caption - Message caption.
- * @param users - A list of user that can vote.
+ * @param voters - The list of users that are allowed to vote.
  * @param list - A list of element.
  * @param options
  */
 export function unanimousVote<T>(
     channel: PartialTextBasedChannelFields,
     caption: string,
-    users: readonly User[],
+    voters: readonly User[],
     list: readonly T[],
-    options?: ListOptions<T>
+    options?: ListOptions<T>,
 ) {
+    if (voters.length === 0) throw new Error("users need at least one element.");
+
     return reactorVote(
         channel,
         caption,
         list,
         { ...options, ...{ votePerUser: undefined } },
         {
-            userFilter: (user) => users.some((u) => u.id === user.id),
+            userFilter: user => voters.some(u => u.id === user.id),
         },
         {
             onAdd(e) {
-                if (e.users.length === users.length) return { value: e.value };
+                if (e.users.length === voters.length) return { value: e.value };
             },
-        }
+        },
     );
 }

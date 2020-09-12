@@ -35,7 +35,7 @@ npm i d-reactor
 
 👤 **Tristan Guichaoua**
 
--   Website: tguichaoua.github.io
+-   Website: [tguichaoua.github.io](https://tguichaoua.github.io/)
 -   Github: [@tguichaoua](https://github.com/tguichaoua)
 
 ## 🤝 Contributing
