@@ -21,11 +21,10 @@ export function voteCommittee<T>(
     list: readonly T[],
     voters: User[],
     votePerUser = 1,
-    options?: Omit<VoteOptions<T>, "votePerUser">
+    options?: Omit<VoteOptions<T>, "votePerUser">,
 ) {
     if (votePerUser < 1) throw new Error("votePerUser must be greater than 1.");
-    if (voters.length === 0)
-        throw new Error("users need at least one element.");
+    if (voters.length === 0) throw new Error("users need at least one element.");
 
     return reactorVote<T>(
         channel,
@@ -33,17 +32,14 @@ export function voteCommittee<T>(
         list,
         { ...options, votePerUser },
         {
-            userFilter: (user) => voters.some((u) => user.id === u.id),
+            userFilter: user => voters.some(u => user.id === u.id),
         },
         {
             onAdd(_, votes) {
-                const total = votes.reduce(
-                    (prev, cur) => (prev += cur.length),
-                    0
-                );
+                const total = votes.reduce((prev, cur) => (prev += cur.length), 0);
 
                 return { submit: total >= voters.length * votePerUser };
             },
-        }
+        },
     );
 }

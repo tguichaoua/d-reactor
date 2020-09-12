@@ -9,10 +9,7 @@ interface Button {
      * @param user the user that click on the reaction.
      * @param reactor the reactor that handle this button.
      */
-    clicked: (
-        user: User,
-        reactor: Reactor<never, void>
-    ) => void | Promise<void>;
+    clicked: (user: User, reactor: Reactor<never, void>) => void | Promise<void>;
 }
 
 /**
@@ -25,11 +22,8 @@ interface Button {
  * @param message Message to attach the reaction.
  * @param buttons A list of buttons.
  */
-export function buttons(
-    message: Message | Promise<Message>,
-    ...buttons: Button[]
-) {
-    const emojis = buttons.map((b) => b.emoji);
+export function buttons(message: Message | Promise<Message>, ...buttons: Button[]) {
+    const emojis = buttons.map(b => b.emoji);
     const reactor: Reactor<never, void> = new Reactor<never, void>(
         Promise.resolve(message),
         emojis,
@@ -41,12 +35,10 @@ export function buttons(
                 if (i !== -1)
                     return {
                         remove: true,
-                        promise: Promise.resolve(
-                            buttons[i].clicked(user, reactor)
-                        ),
+                        promise: Promise.resolve(buttons[i].clicked(user, reactor)),
                     };
             },
-        }
+        },
     );
     return reactor;
 }

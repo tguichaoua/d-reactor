@@ -10,7 +10,7 @@ client.on("ready", () => {
     console.log(`Logged as ${client.user?.username}`);
 });
 
-client.on("message", async (message) => {
+client.on("message", async message => {
     if (message.author.bot || message.system) return;
 
     if (message.content.startsWith(env.prefix)) {
@@ -22,14 +22,11 @@ client.on("message", async (message) => {
     }
 });
 
-client.login(env.token).catch((e) => {
+client.login(env.token).catch(e => {
     throw e;
 });
 
-const COMMANDS: Record<
-    string,
-    (message: Message, args: string[]) => Promise<void> | void
-> = {
+const COMMANDS: Record<string, (message: Message, args: string[]) => Promise<void> | void> = {
     async vc(messge: Message) {
         const result = await voteCommittee(
             messge.channel,
@@ -37,14 +34,12 @@ const COMMANDS: Record<
             ["cat", "dog", "mouse", "rabbit"],
             [messge.author],
             2,
-            { emojis: ["🐱", "🐶", "🐁", "🐰"] }
+            { emojis: ["🐱", "🐶", "🐁", "🐰"] },
         );
 
         if (result.status === "fulfilled") {
             await messge.channel.send(
-                `The most favourited pets is/are ${result.value.top
-                    .map((e) => e.value)
-                    .join(", ")}`
+                `The most favourited pets is/are ${result.value.top.map(e => e.value).join(", ")}`,
             );
         }
     },

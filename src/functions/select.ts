@@ -34,45 +34,32 @@ export function select<T>(
     user: User,
     list: readonly T[],
     count: number,
-    options?: SelectOptions<T>
+    options?: SelectOptions<T>,
 ) {
-    if (count > list.length)
-        throw new Error("count cannot be greater that list.length.");
-    if (options?.minimum && options.minimum >= count)
-        throw new Error("options.minimum must be lower than count.");
+    if (count > list.length) throw new Error("count cannot be greater that list.length.");
+    if (options?.minimum && options.minimum >= count) throw new Error("options.minimum must be lower than count.");
 
     const selected = new Set<T>();
-    return reactorList<T, T[]>(
-        channel,
-        caption,
-        list,
-        options,
-        () => Array.from(selected),
-        {
-            userFilter: (u) => u.id === user.id,
-            onCollect({ index }) {
-                selected.add(list[index]);
-                if (selected.size >= count)
-                    return { value: Array.from(selected) };
-            },
-            onRemove({ index }) {
-                selected.delete(list[index]);
-            },
-            buttons: options?.minimum
-                ? [
-                      {
-                          emoji: emojis.checkMark,
-                          action() {
-                              if (
-                                  options?.minimum &&
-                                  selected.size >= options.minimum
-                              ) {
-                                  return { value: Array.from(selected) };
-                              }
-                          },
+    return reactorList<T, T[]>(channel, caption, list, options, () => Array.from(selected), {
+        userFilter: u => u.id === user.id,
+        onCollect({ index }) {
+            selected.add(list[index]);
+            if (selected.size >= count) return { value: Array.from(selected) };
+        },
+        onRemove({ index }) {
+            selected.delete(list[index]);
+        },
+        buttons: options?.minimum
+            ? [
+                  {
+                      emoji: emojis.checkMark,
+                      action() {
+                          if (options?.minimum && selected.size >= options.minimum) {
+                              return { value: Array.from(selected) };
+                          }
                       },
-                  ]
-                : [],
-        }
-    );
+                  },
+              ]
+            : [],
+    });
 }

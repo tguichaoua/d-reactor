@@ -16,11 +16,7 @@ import emojis from "../misc/emojis.json";
  * @param userFilter Determines if a user is allow to react.
  * @param options
  */
-export function confirm(
-    message: Message | Promise<Message>,
-    userFilter?: Predicate<User>,
-    options?: ReactorOptions
-) {
+export function confirm(message: Message | Promise<Message>, userFilter?: Predicate<User>, options?: ReactorOptions) {
     return new Reactor<boolean, false>(
         Promise.resolve(message),
         [emojis.checkMark, emojis.crossMark],
@@ -31,6 +27,6 @@ export function confirm(
                 return { value: reaction.emoji.name === emojis.checkMark };
             },
             userFilter,
-        }
+        },
     );
 }
