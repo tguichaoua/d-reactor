@@ -109,8 +109,10 @@ export class Reactor<R, C = R> implements Promise<ResolvedReactor<R, C>> {
                             if (
                                 internalOptions.userFilter &&
                                 !internalOptions.userFilter(user)
-                            )
+                            ) {
                                 await reaction.users.remove(user).catch(error);
+                                return;
+                            }
 
                             if (internalOptions.onCollect) {
                                 const action = internalOptions.onCollect({
