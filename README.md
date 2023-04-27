@@ -1,20 +1,20 @@
 <h1 align="center">Welcome to d-reactor 👋</h1>
 <p>
   <a href="https://www.npmjs.com/package/d-reactor" target="_blank">
-    <img alt="Version" src="https://img.shields.io/npm/v/d-reactor.svg">
+    <img alt="Version" src="https://img.shields.io/npm/v/d-reactor.svg?style=for-the-badge" height="20">
   </a>
-  <img src="https://img.shields.io/badge/node-%3E%3D12-blue.svg" />
+  <img src="https://img.shields.io/badge/node-%3E%3D12-blue.svg?style=for-the-badge" height="20" />
   <a href="https://www.npmjs.com/package/discord.js" target="_blank">
-    <img src="https://img.shields.io/badge/discord.js-%3E%3D12.2.0-blue.svg" />
+    <img src="https://img.shields.io/badge/discord.js-%3E%3D12.2.0-blue.svg?style=for-the-badge" height="20" />
   </a>
   <a href="https://github.com/tguichaoua/d-reactor/wiki" target="_blank">
-    <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
+    <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg?style=for-the-badge" height="20" />
   </a>
   <a href="https://github.com/tguichaoua/d-reactor/graphs/commit-activity" target="_blank">
-    <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
+    <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-no-lightgrey.svg?style=for-the-badge" height="20" />
   </a>
   <a href="https://github.com/tguichaoua/d-reactor/blob/master/LICENSE" target="_blank">
-    <img alt="License: MIT" src="https://img.shields.io/github/license/tguichaoua/d-reactor" />
+    <img alt="License: MIT" src="https://img.shields.io/github/license/tguichaoua/d-reactor?style=for-the-badge" height="20" />
   </a>
 </p>
 
